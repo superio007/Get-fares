@@ -28,7 +28,6 @@ session_start();
 
         .form-row {
             display: grid;
-            /* flex-direction: column; */
             margin-right: 10px;
             flex: 1;
         }
@@ -88,7 +87,6 @@ session_start();
         }
 
         .inner-div {
-            /* padding: 10px; */
             background-color: white;
         }
 
@@ -104,7 +102,6 @@ session_start();
             margin-left: 5px;
             font-size: 14px;
             color: #000;
-            /* Adjust the color to match the icon color in the image */
         }
 
         .more-options {
@@ -116,7 +113,6 @@ session_start();
         .more-options button {
             padding: 5px 10px;
             height: 38px;
-            /* Ensure the button has the same height as the inputs and selects */
         }
 
         .notice-box {
@@ -128,13 +124,11 @@ session_start();
 
         .id-number-row .form-row {
             flex: 0 0 20%;
-            /* Adjust width of Identification Number */
             margin-right: 10px;
         }
 
         .id-number-row .dob-row {
             flex: 1;
-            /* Ensure Date of Expire takes the remaining space */
             display: flex;
         }
 
@@ -254,6 +248,8 @@ session_start();
     <?php
     $traceId = $_GET['traceId'];
     echo $traceId;
+    $purchaseId = $_GET['purchaseId'];
+    echo $purchaseId;
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $errors = [];
 
@@ -384,8 +380,6 @@ session_start();
         }
     }
     $formData = $_SESSION['formData'];
-    // var_dump($formData);
-    // unset($_SESSION['formData']);
     ?>
 
     <form action="" method="post" id="passenger-form">
@@ -399,29 +393,29 @@ session_start();
                         </div>
                         <div class="inner-div">
                             <div class="form-row">
-                                <label for="title">Title*</label>
-                                <select id="title" name="title" required>
+                                <label for="title-<?php echo $i; ?>">Title*</label>
+                                <select id="title-<?php echo $i; ?>" name="title" required>
                                     <option value="Mr">Mr.</option>
                                     <option value="Mrs">Mrs.</option>
                                     <option value="Miss">Miss</option>
                                     <option value="Ms">Ms.</option>
                                 </select>
-                                <div id="title-error" class="error-message">Title is required.</div>
+                                <div id="title-<?php echo $i; ?>-error" class="error-message">Title is required.</div>
                             </div>
                             <div class="form-row">
-                                <label for="first-name">First name*</label>
-                                <input type="text" id="first-name" placeholder="Enter first name" name="first-name" required>
-                                <div id="first-name-error" class="error-message">First name is required.</div>
+                                <label for="first-name-<?php echo $i; ?>">First name*</label>
+                                <input type="text" id="first-name-<?php echo $i; ?>" placeholder="Enter first name" name="first-name" required>
+                                <div id="first-name-<?php echo $i; ?>-error" class="error-message">First name is required.</div>
                             </div>
                             <div class="form-row">
-                                <label for="last-name">Last name*</label>
-                                <input type="text" id="last-name" placeholder="Enter last name" name="last-name" required>
-                                <div id="last-name-error" class="error-message">Last name is required.</div>
+                                <label for="last-name-<?php echo $i; ?>">Last name*</label>
+                                <input type="text" id="last-name-<?php echo $i; ?>" placeholder="Enter last name" name="last-name" required>
+                                <div id="last-name-<?php echo $i; ?>-error" class="error-message">Last name is required.</div>
                             </div>
                         </div>
                         <div class="dob-row">
-                            <label for="dob">Date of birth*</label>
-                            <select id="dob-day" name="dob-day" class="dob-field" required>
+                            <label for="dob-<?php echo $i; ?>">Date of birth*</label>
+                            <select id="dob-day-<?php echo $i; ?>" name="dob-day" class="dob-field" required>
                                 <option value="" selected disabled hidden>DD</option>
                                 <option value="1">1</option>
                                 <option value="2">2</option>
@@ -455,7 +449,7 @@ session_start();
                                 <option value="30">30</option>
                                 <option value="31">31</option>
                             </select>
-                            <select id="dob-month" name="dob-month" class="dob-field" required>
+                            <select id="dob-month-<?php echo $i; ?>" name="dob-month" class="dob-field" required>
                                 <option value="" selected disabled hidden>MM</option>
                                 <option value="1">January</option>
                                 <option value="2">February</option>
@@ -470,39 +464,37 @@ session_start();
                                 <option value="11">November</option>
                                 <option value="12">December</option>
                             </select>
-                            <select id="dob-year" name="dob-year" class="dob-field" required>
+                            <select id="dob-year-<?php echo $i; ?>" name="dob-year" class="dob-field" required>
                                 <option value="" selected disabled hidden>YYYY</option>
-                                <!-- Year options... -->
                             </select>
-                            <div id="dob-error" class="error-message">Complete date of birth is required.</div>
+                            <div id="dob-<?php echo $i; ?>-error" class="error-message">Complete date of birth is required.</div>
                         </div>
                         <div class="form-row">
-                            <label for="id-method">Identification method</label>
-                            <select id="id-method" name="id-method" required>
+                            <label for="id-method-<?php echo $i; ?>">Identification method</label>
+                            <select id="id-method-<?php echo $i; ?>" name="id-method" required>
                                 <option value="" selected disabled hidden>Select</option>
                                 <option value="Passport">Passport</option>
                             </select>
-                            <div id="id-method-error" class="error-message">Identification method is required.</div>
+                            <div id="id-method-<?php echo $i; ?>-error" class="error-message">Identification method is required.</div>
                         </div>
                         <div class="id-number-row">
                             <div class="form-row">
-                                <label style="display: flex;align-items: end;" for="gender">Gender</label>
-                                <!-- <input type="" id="gender" name="gender" required> -->
-                                <select id="gender" name="gender" required>
+                                <label style="display: flex;align-items: end;" for="gender-<?php echo $i; ?>">Gender</label>
+                                <select id="gender-<?php echo $i; ?>" name="gender" required>
                                     <option value="" selected disabled hidden>Select Gender</option>
                                     <option value="M">Male</option>
                                     <option value="F">Female</option>
                                 </select>
-                                <div id="gender-error" class="error-message">Gender is required.</div>
+                                <div id="gender-<?php echo $i; ?>-error" class="error-message">Gender is required.</div>
                             </div>
                             <div class="form-row">
-                                <label style="display: flex;align-items: end;" for="id-number">Identification Number</label>
-                                <input type="text" id="id-number" name="id-number" required>
-                                <div id="id-number-error" class="error-message">Identification number is required.</div>
+                                <label style="display: flex;align-items: end;" for="id-number-<?php echo $i; ?>">Identification Number</label>
+                                <input type="text" id="id-number-<?php echo $i; ?>" name="id-number" required>
+                                <div id="id-number-<?php echo $i; ?>-error" class="error-message">Identification number is required.</div>
                             </div>
                             <div class="dob-row">
-                                <label for="id-expire-day" style="flex-basis: 100%; margin-bottom: 5px;">Date of expire</label>
-                                <select id="id-expire-day" name="id-expire-day" class="dob-field" required>
+                                <label for="id-expire-day-<?php echo $i; ?>" style="flex-basis: 100%; margin-bottom: 5px;">Date of expire</label>
+                                <select id="id-expire-day-<?php echo $i; ?>" name="id-expire-day" class="dob-field" required>
                                     <option value="" selected disabled hidden>DD</option>
                                     <option value="1">1</option>
                                     <option value="2">2</option>
@@ -536,7 +528,7 @@ session_start();
                                     <option value="30">30</option>
                                     <option value="31">31</option>
                                 </select>
-                                <select id="id-expire-month" name="id-expire-month" class="dob-field" required>
+                                <select id="id-expire-month-<?php echo $i; ?>" name="id-expire-month" class="dob-field" required>
                                     <option value="" selected disabled hidden>MM</option>
                                     <option value="1">January</option>
                                     <option value="2">February</option>
@@ -551,17 +543,16 @@ session_start();
                                     <option value="11">November</option>
                                     <option value="12">December</option>
                                 </select>
-                                <select id="id-expire-year" name="id-expire-year" class="dob-field" required>
+                                <select id="id-expire-year-<?php echo $i; ?>" name="id-expire-year" class="dob-field" required>
                                     <option value="">YYYY</option>
-                                    <!-- Year options... -->
                                 </select>
-                                <div id="id-expire-error" class="error-message">Complete ID expiration date is required.</div>
+                                <div id="id-expire-<?php echo $i; ?>-error" class="error-message">Complete ID expiration date is required.</div>
                             </div>
                         </div>
                         <div style="display: flex;">
                             <div class="form-row">
-                                <label for="country-issue">Country of issue</label>
-                                <select id="country-issue" name="country-issue" required>
+                                <label for="country-issue-<?php echo $i; ?>">Country of issue</label>
+                                <select id="country-issue-<?php echo $i; ?>" name="country-issue" required>
                                     <option value="" selected disabled hidden>Select country</option>
                                     <option value="AF">Afghanistan</option>
                                     <option value="AL">Albania</option>
@@ -765,11 +756,11 @@ session_start();
                                     <option value="ZM">Zambia</option>
                                     <option value="ZW">Zimbabwe</option>
                                 </select>
-                                <div id="country-issue-error" class="error-message">Country of issue is required.</div>
+                                <div id="country-issue-<?php echo $i; ?>-error" class="error-message">Country of issue is required.</div>
                             </div>
                             <div class="form-row">
-                                <label for="country-birth">Country of birth</label>
-                                <select id="country-birth" name="country-birth" required>
+                                <label for="country-birth-<?php echo $i; ?>">Country of birth</label>
+                                <select id="country-birth-<?php echo $i; ?>" name="country-birth" required>
                                     <option value="" selected disabled hidden>Select country</option>
                                     <option value="AF">Afghanistan</option>
                                     <option value="AL">Albania</option>
@@ -973,7 +964,7 @@ session_start();
                                     <option value="ZM">Zambia</option>
                                     <option value="ZW">Zimbabwe</option>
                                 </select>
-                                <div id="country-birth-error" class="error-message">Country of birth is required.</div>
+                                <div id="country-birth-<?php echo $i; ?>-error" class="error-message">Country of birth is required.</div>
                             </div>
                         </div>
                     </div>
@@ -982,35 +973,35 @@ session_start();
                         Please confirm and provide your contact details (mobile number and/or email) if you wish the carriers operating your flights to be able to contact you due to operational disruption such as cancellations, delays and schedule changes etc.
                         <div class="d-flex gap-5 row ms-3 my-3">
                             <div style="border:1px solid #00000073" class="d-flex gap-3 col-6">
-                                <input type="radio" id="share" name="emergency_contact" value="share" >
-                                <label for="share">I wish to share emergency contact details</label>
+                                <input type="radio" id="share-<?php echo $i; ?>" name="emergency_contact_<?php echo $i; ?>" value="share">
+                                <label for="share-<?php echo $i; ?>">I wish to share emergency contact details</label>
                             </div>
                             <div style="border:1px solid #00000073" class="d-flex gap-3 col-5">
-                                <input type="radio" id="no-share" name="emergency_contact" value="no-share" checked>
-                                <label for="no-share">I don't wish to share my details</label>
+                                <input type="radio" id="no-share-<?php echo $i; ?>" name="emergency_contact_<?php echo $i; ?>" value="no-share" checked>
+                                <label for="no-share-<?php echo $i; ?>">I don't wish to share my details</label>
                             </div>
                         </div>
-                        <div id="contact-details" style="margin: 0 1rem;" class="hidden">
+                        <div id="contact-details-<?php echo $i; ?>" style="margin: 0 1rem;" class="hidden">
                             <div class="form-row row d-flex">
                                 <div class="form-group col-6">
-                                    <label for="emergency_country">Country*</label>
-                                    <select id="emergency_country" name="emergency_country" required>
+                                    <label for="emergency_country-<?php echo $i; ?>">Country*</label>
+                                    <select id="emergency_country-<?php echo $i; ?>" name="emergency_country" required>
                                         <option value="" selected disabled hidden>Select country</option>
                                         <option value="+91">India</option>
                                     </select>
-                                    <div id="emergency_country-error" class="error-message">Country is required.</div>
+                                    <div id="emergency_country-<?php echo $i; ?>-error" class="error-message">Country is required.</div>
                                 </div>
                                 <div class="form-group col-6">
-                                    <label for="emergency_phone-number">Phone number*</label>
-                                    <input placeholder="Enter phone number" type="tel" id="emergency_phone-number" name="emergency_phone-number" required>
-                                    <div id="emergency_phone-number-error" class="error-message">Phone no is required.</div>
+                                    <label for="emergency_phone-number-<?php echo $i; ?>">Phone number*</label>
+                                    <input placeholder="Enter phone number" type="tel" id="emergency_phone-number-<?php echo $i; ?>" name="emergency_phone-number" required>
+                                    <div id="emergency_phone-number-<?php echo $i; ?>-error" class="error-message">Phone no is required.</div>
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group" style="margin-right: 50.36666%">
-                                    <label for="emergency_email-address">E-mail address*</label>
-                                    <input type="email" id="emergency_email-address" name="emergency_email-address" placeholder="Enter email" required>
-                                    <div id="emergency_email-address-error" class="error-message">Email address is required.</div>
+                                    <label for="emergency_email-address-<?php echo $i; ?>">E-mail address*</label>
+                                    <input type="email" id="emergency_email-address-<?php echo $i; ?>" name="emergency_email-address" placeholder="Enter email" required>
+                                    <div id="emergency_email-address-<?php echo $i; ?>-error" class="error-message">Email address is required.</div>
                                 </div>
                             </div>
                         </div>
@@ -1295,18 +1286,21 @@ session_start();
         document.addEventListener('DOMContentLoaded', function() {
             // Populate year dropdowns
             function populateYearDropdowns() {
-                const dobYear = document.getElementById('dob-year');
-                const idExpireYear = document.getElementById('id-expire-year');
                 const currentYear = new Date().getFullYear();
 
-                for (let year = currentYear; year >= 1900; year--) {
-                    let option = new Option(year, year);
-                    dobYear.add(option);
-                }
+                for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
+                    const dobYear = document.getElementById('dob-year-' + i);
+                    const idExpireYear = document.getElementById('id-expire-year-' + i);
 
-                for (let year = currentYear; year <= currentYear + 50; year++) {
-                    let option = new Option(year, year);
-                    idExpireYear.add(option);
+                    for (let year = currentYear; year >= 1900; year--) {
+                        let option = new Option(year, year);
+                        dobYear.add(option);
+                    }
+
+                    for (let year = currentYear; year <= currentYear + 50; year++) {
+                        let option = new Option(year, year);
+                        idExpireYear.add(option);
+                    }
                 }
             }
 
@@ -1322,20 +1316,24 @@ session_start();
                 'zip-code', 'street', 'house-no'
             ];
 
-            requiredFields.forEach(function(field) {
-                const input = document.getElementById(field);
-                input.addEventListener('input', function() {
-                    validateField(input);
+            for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
+                requiredFields.forEach(function(field) {
+                    const input = document.getElementById(field + '-' + i);
+                    if (input) {
+                        input.addEventListener('input', function() {
+                            validateField(input);
+                        });
+                    }
                 });
-            });
+            }
 
             function validateField(input) {
                 const errorElement = document.getElementById(input.id + '-error');
                 if (input.value === '' || input.value === null) {
                     showError(input, errorElement, 'This field is required.');
-                } else if ((input.id === 'first-name' || input.id === 'last-name' || input.id === 'city' || input.id === 'street') && /\d/.test(input.value)) {
+                } else if ((input.id.includes('first-name') || input.id.includes('last-name') || input.id.includes('city') || input.id.includes('street')) && /\d/.test(input.value)) {
                     showError(input, errorElement, 'This field should not contain numbers.');
-                } else if ((input.id === 'id-number' || input.id === 'zip-code' || input.id === 'house-no' || input.id === 'phone-number' || input.id === 'emergency_phone-number') && /\D/.test(input.value)) {
+                } else if ((input.id.includes('id-number') || input.id.includes('zip-code') || input.id.includes('house-no') || input.id.includes('phone-number') || input.id.includes('emergency_phone-number')) && /\D/.test(input.value)) {
                     showError(input, errorElement, 'This field should only contain numbers.');
                 } else {
                     hideError(input, errorElement);
@@ -1353,17 +1351,19 @@ session_start();
                 errorElement.style.display = 'none';
             }
 
-            function toggleRequiredAttributes(shouldShare) {
+            function toggleRequiredAttributes(index, shouldShare) {
                 const emergencyFields = [
                     'emergency_country', 'emergency_phone-number', 'emergency_email-address'
                 ];
 
                 emergencyFields.forEach(function(field) {
-                    const input = document.getElementById(field);
-                    if (shouldShare) {
-                        input.setAttribute('required', 'required');
-                    } else {
-                        input.removeAttribute('required');
+                    const input = document.getElementById(field + '-' + index);
+                    if (input) {
+                        if (shouldShare) {
+                            input.setAttribute('required', 'required');
+                        } else {
+                            input.removeAttribute('required');
+                        }
                     }
                 });
             }
@@ -1372,44 +1372,48 @@ session_start();
             document.getElementById('passenger-form').addEventListener('submit', function(event) {
                 let valid = true;
 
-                requiredFields.forEach(function(field) {
-                    const input = document.getElementById(field);
-                    const errorElement = document.getElementById(field + '-error');
+                for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
+                    requiredFields.forEach(function(field) {
+                        const input = document.getElementById(field + '-' + i);
+                        const errorElement = document.getElementById(field + '-' + i + '-error');
 
-                    if (input.value === '' || input.value === null) {
-                        showError(input, errorElement, 'This field is required.');
-                        valid = false;
-                    } else if ((input.id === 'first-name' || input.id === 'last-name' || input.id === 'city' || input.id === 'street') && /\d/.test(input.value)) {
-                        showError(input, errorElement, 'This field should not contain numbers.');
-                        valid = false;
-                    } else if ((input.id === 'id-number' || input.id === 'zip-code' || input.id === 'house-no' || input.id === 'phone-number' || input.id === 'emergency_phone-number') && /\D/.test(input.value)) {
-                        showError(input, errorElement, 'This field should only contain numbers.');
-                        valid = false;
-                    } else {
-                        hideError(input, errorElement);
-                    }
-                });
+                        if (input && (input.value === '' || input.value === null)) {
+                            showError(input, errorElement, 'This field is required.');
+                            valid = false;
+                        } else if (input && (input.id.includes('first-name') || input.id.includes('last-name') || input.id.includes('city') || input.id.includes('street')) && /\d/.test(input.value)) {
+                            showError(input, errorElement, 'This field should not contain numbers.');
+                            valid = false;
+                        } else if (input && (input.id.includes('id-number') || input.id.includes('zip-code') || input.id.includes('house-no') || input.id.includes('phone-number') || input.id.includes('emergency_phone-number')) && /\D/.test(input.value)) {
+                            showError(input, errorElement, 'This field should only contain numbers.');
+                            valid = false;
+                        } else if (input) {
+                            hideError(input, errorElement);
+                        }
+                    });
+                }
 
                 if (!valid) {
                     event.preventDefault(); // Prevent form submission if not valid
                 }
             });
 
-            function toggleDropdown() {
-                const shouldShare = $('#share').is(':checked');
+            function toggleDropdown(index) {
+                const shouldShare = $('#share-' + index).is(':checked');
                 if (shouldShare) {
-                    $('#contact-details').removeClass('hidden');
+                    $('#contact-details-' + index).removeClass('hidden');
                 } else {
-                    $('#contact-details').addClass('hidden');
+                    $('#contact-details-' + index).addClass('hidden');
                 }
-                toggleRequiredAttributes(shouldShare);
+                toggleRequiredAttributes(index, shouldShare);
             }
 
             $(document).ready(function() {
-                toggleDropdown();
-                $('input[name="emergency_contact"]').on('change', function() {
-                    toggleDropdown();
-                });
+                for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
+                    toggleDropdown(i);
+                    $('input[name="emergency_contact_' + i + '"]').on('change', function() {
+                        toggleDropdown(i);
+                    });
+                }
             });
         });
     </script>
