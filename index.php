@@ -283,7 +283,7 @@ session_start();
     // echo "Adults Count: " . ($adultsCount ?? 1) . "<br>";
     // echo "Children Count: " . ($childrenCount ?? 0) . "<br>";
     // echo "Infants Count: " . ($infantsCount ?? 0) . "<br>";
-    var_dump($_SESSION ['formData']);
+    // var_dump(isset($_SESSION ['formData']));
     ?>
     <div class="container my-5">
         <div class="bg-warning p-4 rounded">

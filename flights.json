@@ -1,44 +1,45 @@
 {
-    "traceId": "57f1abab-d5b5-4853-84eb-529e2dc8e823",
+    "traceId": "19562471-43c2-4ce5-b2bc-63cb1c6a6191",
     "flights": [
         {
-            "airline": "GF",
-            "adtNum": 2,
+            "airline": "BA",
+            "adtNum": 1,
             "chdNum": 0,
             "infNum": 0,
-            "isFareChange": null,
+            "isFareChange": false,
             "clientId": 0,
             "segGroups": [
                 {
                     "origin": "BOM",
-                    "destination": "DXB",
-                    "departureOn": "2024-06-05T00:00:00",
+                    "destination": "AMS",
+                    "departureOn": "2024-06-24T00:00:00",
                     "segs": [
                         {
-                            "isReturn": null,
+                            "isReturn": false,
                             "origin": "BOM",
-                            "destination": "BAH",
-                            "departureOn": "2024-06-05T21:45:00",
-                            "arrivalOn": "2024-06-05T23:00:00",
-                            "duration": 225,
-                            "flightNum": 65,
-                            "eqpType": 321,
-                            "mrkAirline": "GF",
-                            "depTerminal": 2,
-                            "opAirline": "GF"
+                            "destination": "LHR",
+                            "departureOn": "2024-06-24T01:40:00",
+                            "arrivalOn": "2024-06-24T06:55:00",
+                            "duration": 585,
+                            "flightNum": "138",
+                            "eqpType": "77W",
+                            "mrkAirline": "BA",
+                            "depTerminal": "2",
+                            "arrTerminal": "5",
+                            "opAirline": "BA"
                         },
                         {
-                            "isReturn": null,
-                            "origin": "BAH",
-                            "destination": "DXB",
-                            "departureOn": "2024-06-06T01:55:00",
-                            "arrivalOn": "2024-06-06T04:15:00",
+                            "isReturn": false,
+                            "origin": "LHR",
+                            "destination": "AMS",
+                            "departureOn": "2024-06-24T14:35:00",
+                            "arrivalOn": "2024-06-24T16:55:00",
                             "duration": 80,
-                            "flightNum": 500,
-                            "eqpType": 32,
-                            "mrkAirline": "GF",
-                            "arrTerminal": 1,
-                            "opAirline": "GF"
+                            "flightNum": "432",
+                            "eqpType": "32A",
+                            "mrkAirline": "BA",
+                            "depTerminal": "5",
+                            "opAirline": "BA"
                         }
                     ]
                 }
@@ -46,174 +47,184 @@
             "currency": "INR",
             "fareGroups": [
                 {
-                    "purchaseId": 638531621359225079,
-                    "refundable": 1,
+                    "refundable": true,
                     "totalAmount": 0,
                     "fareType": "Publish",
-                    "priceClass": "Business",
-                    "pricedDescription": [],
-                    "fares": [
+                    "priceClass": "FIRST FULLY FLEX-FIRST FULLY FLEX",
+                    "pricedDescription": [
                         {
-                            "paxType": "ADT",
-                            "base": 32750,
-                            "taxes": [
-                                {"amt": 116.67, "code": "ZR"},
-                                {"amt": 883.33, "code": "BH"},
-                                {"amt": 108.33, "code": "HM"},
-                                {"amt": 265.83, "code": "IN"},
-                                {"amt": 3341.67, "code": "K38"},
-                                {"amt": 458.33, "code": "K3B"},
-                                {"amt": 1180, "code": "P2"},
-                                {"amt": 708.33, "code": "YM"},
-                                {"amt": 1916.67, "code": "YRI"},
-                                {"amt": 1916.67, "code": "YRI"}
-                            ]
-                        }
-                    ]
-                }
-            ],
-            "grossFare": 0,
-            "clientMarkup": 0,
-            "netFare": 0,
-            "baggages": [
-                {
-                    "airline": "GF",
-                    "paxType": "ADT",
-                    "checkInBag": "2PC",
-                    "cabinBag": "Nil",
-                    "cityPair": "BOMBAH"
-                },
-                {
-                    "airline": "GF",
-                    "paxType": "ADT",
-                    "checkInBag": "2PC",
-                    "cabinBag": "Nil",
-                    "cityPair": "BAHDXB"
-                }
-            ],
-            "miniRules": [],
-            "segInfos": [
-                {
-                    "cityPair": "BOMBAH",
-                    "rbd": "I",
-                    "cabinClass": "Business",
-                    "seatRemaining": 4
-                },
-                {
-                    "cityPair": "BAHDXB",
-                    "rbd": "I",
-                    "cabinClass": "Business",
-                    "seatRemaining": 4
-                }
-            ]
-        },
-        {
-            "airline": "GF",
-            "adtNum": 2,
-            "chdNum": 0,
-            "infNum": 0,
-            "isFareChange": null,
-            "clientId": 0,
-            "segGroups": [
-                {
-                    "origin": "BOM",
-                    "destination": "DXB",
-                    "departureOn": "2024-06-05T00:00:00",
-                    "segs": [
-                        {
-                            "isReturn": null,
-                            "origin": "BOM",
-                            "destination": "BAH",
-                            "departureOn": "2024-06-05T21:45:00",
-                            "arrivalOn": "2024-06-05T23:00:00",
-                            "duration": 225,
-                            "flightNum": 65,
-                            "eqpType": 321,
-                            "mrkAirline": "GF",
-                            "depTerminal": 2,
-                            "opAirline": "GF"
+                            "description": "SEAT CHOICE",
+                            "type": "Seat",
+                            "status": "Included",
+                            "returnStatus": "None"
                         },
                         {
-                            "isReturn": null,
-                            "origin": "BAH",
-                            "destination": "DXB",
-                            "departureOn": "2024-06-06T07:05:00",
-                            "arrivalOn": "2024-06-06T09:30:00",
-                            "duration": 85,
-                            "flightNum": 502,
-                            "eqpType": 32,
-                            "mrkAirline": "GF",
-                            "arrTerminal": 1,
-                            "opAirline": "GF"
+                            "description": "CHANGE BEFORE DEPARTURE",
+                            "type": "ReBooking",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "REFUND BEFORE DEPARTURE",
+                            "type": "Refund",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "CABIN BAG MAX 23KG 51LB 126LCM",
+                            "type": "CarryOn",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "3 BAGS MAX 32KG 70LB EACH",
+                            "type": "CheckInBag",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "LOUNGE ACCESS",
+                            "type": "None",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "PREMIUM CATERING",
+                            "type": "Meal",
+                            "status": "Included",
+                            "returnStatus": "None"
                         }
-                    ]
-                }
-            ],
-            "currency": "INR",
-            "fareGroups": [
-                {
-                    "purchaseId": 638531621359225560,
-                    "refundable": 1,
-                    "totalAmount": 0,
-                    "fareType": "Publish",
-                    "priceClass": "Business",
-                    "pricedDescription": [],
+                    ],
                     "fares": [
                         {
                             "paxType": "ADT",
-                            "base": 32750,
+                            "base": 507416.66,
                             "taxes": [
-                                {"amt": 116.67, "code": "ZR"},
-                                {"amt": 883.33, "code": "BH"},
-                                {"amt": 108.33, "code": "HM"},
-                                {"amt": 265.83, "code": "IN"},
-                                {"amt": 3341.67, "code": "K38"},
-                                {"amt": 458.33, "code": "K3B"},
-                                {"amt": 1180, "code": "P2"},
-                                {"amt": 708.33, "code": "YM"},
-                                {"amt": 1916.67, "code": "YRI"},
-                                {"amt": 1916.67, "code": "YRI"}
+                                {
+                                    "amt": 28166.67,
+                                    "code": "YQI"
+                                },
+                                {
+                                    "amt": 2791.67,
+                                    "code": "YQI"
+                                },
+                                {
+                                    "amt": 1450.00,
+                                    "code": "UB"
+                                },
+                                {
+                                    "amt": 265.83,
+                                    "code": "IN"
+                                },
+                                {
+                                    "amt": 60300.00,
+                                    "code": "K38"
+                                },
+                                {
+                                    "amt": 3716.67,
+                                    "code": "K3B"
+                                },
+                                {
+                                    "amt": 1180.00,
+                                    "code": "P2"
+                                },
+                                {
+                                    "amt": 708.33,
+                                    "code": "YM"
+                                }
                             ]
+                        }
+                    ],
+                    "grossFare": 0,
+                    "clientMarkup": 0,
+                    "netFare": 0,
+                    "baggages": [
+                        {
+                            "airline": "BA",
+                            "paxType": "ADT",
+                            "checkInBag": "3PC",
+                            "cabinBag": "7KG",
+                            "cityPair": "BOMLHR"
+                        },
+                        {
+                            "airline": "BA",
+                            "paxType": "ADT",
+                            "checkInBag": "3PC",
+                            "cabinBag": "7KG",
+                            "cityPair": "LHRAMS"
+                        }
+                    ],
+                    "miniRules": [
+                        {
+                            "changeAllowed": true,
+                            "cancelAllowed": false,
+                            "canAmt": 0,
+                            "exgAmt": 0,
+                            "paxType": "ADT",
+                            "apply": "Before",
+                            "remarks": "As per Airline Applicable"
+                        },
+                        {
+                            "changeAllowed": true,
+                            "cancelAllowed": false,
+                            "canAmt": 0,
+                            "exgAmt": 0,
+                            "paxType": "ADT",
+                            "apply": "After",
+                            "remarks": "As per Airline Applicable"
+                        },
+                        {
+                            "changeAllowed": false,
+                            "cancelAllowed": true,
+                            "canAmt": 0,
+                            "exgAmt": 0,
+                            "paxType": "ADT",
+                            "apply": "Before"
+                        },
+                        {
+                            "changeAllowed": false,
+                            "cancelAllowed": true,
+                            "canAmt": 0,
+                            "exgAmt": 0,
+                            "paxType": "ADT",
+                            "apply": "After"
+                        }
+                    ],
+                    "segInfos": [
+                        {
+                            "cityPair": "BOMLHR",
+                            "rbd": "F",
+                            "cabinClass": "First",
+                            "seatRemaining": 7
+                        },
+                        {
+                            "cityPair": "LHRAMS",
+                            "rbd": "J",
+                            "cabinClass": "Business",
+                            "seatRemaining": 2
                         }
                     ]
                 }
             ],
-            "grossFare": 0,
-            "clientMarkup": 0,
-            "netFare": 0,
-            "baggages": [
-                {
-                    "airline": "GF",
-                    "paxType": "ADT",
-                    "checkInBag": "2PC",
-                    "cabinBag": "Nil",
-                    "cityPair": "BOMBAH"
-                },
-                {
-                    "airline": "GF",
-                    "paxType": "ADT",
-                    "checkInBag": "2PC",
-                    "cabinBag": "Nil",
-                    "cityPair": "BAHDXB"
-                }
-            ],
-            "miniRules": [],
-            "segInfos": [
-                {
-                    "cityPair": "BOMBAH",
-                    "rbd": "I",
-                    "cabinClass": "Business",
-                    "seatRemaining": 4
-                },
-                {
-                    "cityPair": "BAHDXB",
-                    "rbd": "I",
-                    "cabinClass": "Business",
-                    "seatRemaining": 4
-                }
-            ]
+            "content": "GDS",
+            "vendor": "NotAssigned",
+            "isHold": false
+        }
+    ],
+    "passengerRequiredFields": [
+        {
+            "paxType": "ADT",
+            "email": true,
+            "dob": false,
+            "gender": false,
+            "areaCode": false,
+            "mobile": true,
+            "passportNumber": true,
+            "passengerNationality": true,
+            "passportDOI": false,
+            "passportDOE": true,
+            "passportIssuedCountry": true,
+            "address_CountryCode": false
         }
     ]
 }
-
-
