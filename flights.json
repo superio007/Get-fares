@@ -1,0 +1,219 @@
+{
+    "traceId": "57f1abab-d5b5-4853-84eb-529e2dc8e823",
+    "flights": [
+        {
+            "airline": "GF",
+            "adtNum": 2,
+            "chdNum": 0,
+            "infNum": 0,
+            "isFareChange": null,
+            "clientId": 0,
+            "segGroups": [
+                {
+                    "origin": "BOM",
+                    "destination": "DXB",
+                    "departureOn": "2024-06-05T00:00:00",
+                    "segs": [
+                        {
+                            "isReturn": null,
+                            "origin": "BOM",
+                            "destination": "BAH",
+                            "departureOn": "2024-06-05T21:45:00",
+                            "arrivalOn": "2024-06-05T23:00:00",
+                            "duration": 225,
+                            "flightNum": 65,
+                            "eqpType": 321,
+                            "mrkAirline": "GF",
+                            "depTerminal": 2,
+                            "opAirline": "GF"
+                        },
+                        {
+                            "isReturn": null,
+                            "origin": "BAH",
+                            "destination": "DXB",
+                            "departureOn": "2024-06-06T01:55:00",
+                            "arrivalOn": "2024-06-06T04:15:00",
+                            "duration": 80,
+                            "flightNum": 500,
+                            "eqpType": 32,
+                            "mrkAirline": "GF",
+                            "arrTerminal": 1,
+                            "opAirline": "GF"
+                        }
+                    ]
+                }
+            ],
+            "currency": "INR",
+            "fareGroups": [
+                {
+                    "purchaseId": 638531621359225079,
+                    "refundable": 1,
+                    "totalAmount": 0,
+                    "fareType": "Publish",
+                    "priceClass": "Business",
+                    "pricedDescription": [],
+                    "fares": [
+                        {
+                            "paxType": "ADT",
+                            "base": 32750,
+                            "taxes": [
+                                {"amt": 116.67, "code": "ZR"},
+                                {"amt": 883.33, "code": "BH"},
+                                {"amt": 108.33, "code": "HM"},
+                                {"amt": 265.83, "code": "IN"},
+                                {"amt": 3341.67, "code": "K38"},
+                                {"amt": 458.33, "code": "K3B"},
+                                {"amt": 1180, "code": "P2"},
+                                {"amt": 708.33, "code": "YM"},
+                                {"amt": 1916.67, "code": "YRI"},
+                                {"amt": 1916.67, "code": "YRI"}
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "grossFare": 0,
+            "clientMarkup": 0,
+            "netFare": 0,
+            "baggages": [
+                {
+                    "airline": "GF",
+                    "paxType": "ADT",
+                    "checkInBag": "2PC",
+                    "cabinBag": "Nil",
+                    "cityPair": "BOMBAH"
+                },
+                {
+                    "airline": "GF",
+                    "paxType": "ADT",
+                    "checkInBag": "2PC",
+                    "cabinBag": "Nil",
+                    "cityPair": "BAHDXB"
+                }
+            ],
+            "miniRules": [],
+            "segInfos": [
+                {
+                    "cityPair": "BOMBAH",
+                    "rbd": "I",
+                    "cabinClass": "Business",
+                    "seatRemaining": 4
+                },
+                {
+                    "cityPair": "BAHDXB",
+                    "rbd": "I",
+                    "cabinClass": "Business",
+                    "seatRemaining": 4
+                }
+            ]
+        },
+        {
+            "airline": "GF",
+            "adtNum": 2,
+            "chdNum": 0,
+            "infNum": 0,
+            "isFareChange": null,
+            "clientId": 0,
+            "segGroups": [
+                {
+                    "origin": "BOM",
+                    "destination": "DXB",
+                    "departureOn": "2024-06-05T00:00:00",
+                    "segs": [
+                        {
+                            "isReturn": null,
+                            "origin": "BOM",
+                            "destination": "BAH",
+                            "departureOn": "2024-06-05T21:45:00",
+                            "arrivalOn": "2024-06-05T23:00:00",
+                            "duration": 225,
+                            "flightNum": 65,
+                            "eqpType": 321,
+                            "mrkAirline": "GF",
+                            "depTerminal": 2,
+                            "opAirline": "GF"
+                        },
+                        {
+                            "isReturn": null,
+                            "origin": "BAH",
+                            "destination": "DXB",
+                            "departureOn": "2024-06-06T07:05:00",
+                            "arrivalOn": "2024-06-06T09:30:00",
+                            "duration": 85,
+                            "flightNum": 502,
+                            "eqpType": 32,
+                            "mrkAirline": "GF",
+                            "arrTerminal": 1,
+                            "opAirline": "GF"
+                        }
+                    ]
+                }
+            ],
+            "currency": "INR",
+            "fareGroups": [
+                {
+                    "purchaseId": 638531621359225560,
+                    "refundable": 1,
+                    "totalAmount": 0,
+                    "fareType": "Publish",
+                    "priceClass": "Business",
+                    "pricedDescription": [],
+                    "fares": [
+                        {
+                            "paxType": "ADT",
+                            "base": 32750,
+                            "taxes": [
+                                {"amt": 116.67, "code": "ZR"},
+                                {"amt": 883.33, "code": "BH"},
+                                {"amt": 108.33, "code": "HM"},
+                                {"amt": 265.83, "code": "IN"},
+                                {"amt": 3341.67, "code": "K38"},
+                                {"amt": 458.33, "code": "K3B"},
+                                {"amt": 1180, "code": "P2"},
+                                {"amt": 708.33, "code": "YM"},
+                                {"amt": 1916.67, "code": "YRI"},
+                                {"amt": 1916.67, "code": "YRI"}
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "grossFare": 0,
+            "clientMarkup": 0,
+            "netFare": 0,
+            "baggages": [
+                {
+                    "airline": "GF",
+                    "paxType": "ADT",
+                    "checkInBag": "2PC",
+                    "cabinBag": "Nil",
+                    "cityPair": "BOMBAH"
+                },
+                {
+                    "airline": "GF",
+                    "paxType": "ADT",
+                    "checkInBag": "2PC",
+                    "cabinBag": "Nil",
+                    "cityPair": "BAHDXB"
+                }
+            ],
+            "miniRules": [],
+            "segInfos": [
+                {
+                    "cityPair": "BOMBAH",
+                    "rbd": "I",
+                    "cabinClass": "Business",
+                    "seatRemaining": 4
+                },
+                {
+                    "cityPair": "BAHDXB",
+                    "rbd": "I",
+                    "cabinClass": "Business",
+                    "seatRemaining": 4
+                }
+            ]
+        }
+    ]
+}
+
+

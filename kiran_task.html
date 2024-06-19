@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Contact Details Form</title>
+    <style>
+        .emergency-contact-form {
+            width: 500px;
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin: 20px auto;
+            font-family: Arial, sans-serif;
+        }
+
+        .emergency-contact-form div {
+            margin-bottom: 10px;
+        }
+
+        .emergency-contact-form label {
+            font-weight: bold;
+        }
+
+        .emergency-contact-form input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .emergency-contact-form input[type="text"],
+        .emergency-contact-form select,
+        .emergency-contact-form input[type="email"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        .form-header {
+            background-color: #f0f8ff;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+
+        .d-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .gap-3 {
+            margin-right: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="emergency-contact-form">
+        <div class="form-header">
+            <p><strong>Sharing of emergency contact details.</strong></p>
+            <p>Please confirm and provide your contact details (mobile number and/or email) if you wish the carriers operating your flights to be able to contact you due to operational disruption such as cancellations, delays and schedule changes etc.</p>
+        </div>
+        <div class="d-flex">
+            <div class="d-flex gap-3">
+                <input type="radio" id="share" name="emergency_contact" value="share" checked>
+                <label for="share">I wish to share emergency contact details</label>
+            </div>
+            <div class="d-flex gap-3">
+                <input type="radio" id="no-share" name="emergency_contact" value="no-share">
+                <label for="no-share">I don't wish to share my details</label>
+            </div>
+        </div>
+        <div>
+            <label for="country-code">Country call code*</label>
+            <select id="country-code" name="country-code">
+                <option value="" disabled selected>--</option>
+                <option value="1">+1</option>
+                <option value="44">+44</option>
+                <option value="91">+91</option>
+                <!-- Add more country codes as needed -->
+            </select>
+        </div>
+        <div>
+            <label for="phone-number">Phone number*</label>
+            <input type="text" id="phone-number" name="phone-number">
+        </div>
+        <div>
+            <label for="email">E-mail address*</label>
+            <input type="email" id="email" name="email">
+        </div>
+    </div>
+</body>
+</html>
