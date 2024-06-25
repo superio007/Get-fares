@@ -83,50 +83,12 @@ session_start();
 </head>
 <body>
 <?php
-    function getToken(){ 
-        $url = 'https://sandboxapi.getfares.com/connect/token'; // Replace with your actual URL
-
-        // Data to be sent in x-www-form-urlencoded format
-        $data = [
-            'grant_type' => 'client_credentials',
-            'scope' => 'FlightEngine',
-            'client_id' => 'test.client',
-            'client_secret' => 'test.client@4321'
-        ];
-
-        // Convert data array to x-www-form-urlencoded format
-        $postFields = http_build_query($data);
-
-        // Initialize cURL session
-        $ch = curl_init();
-
-        // Set the URL and other options for the cURL session
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/x-www-form-urlencoded'
-        ]);
-
-        // Execute the cURL session and fetch the response
-        $response = curl_exec($ch);
-        $data = json_decode($response,true);
-
-        // Check for errors
-        if ($response === false) {
-            echo 'cURL Error: ' . curl_error($ch);
-        } else {
-            curl_close($ch);
-            $token = $data['access_token'];
-            return $token;
-        }
+    require 'api.php';
+    if(isset($_COOKIE['token'])){
+        $token = $_COOKIE['token'];
+    }else{
+        $token = getToken();
     }
-    // if(isset($_COOKIE['token'])){
-    //     $token = $_COOKIE['token'];
-    // }else{
-    //     $token = getToken();
-    // }
     $token = getToken();
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $tripType = $_POST['trip'] ?? '';
@@ -140,7 +102,7 @@ session_start();
         $childrenCount = $_POST['children'] ?? 0;
         $infantsCount = $_POST['infants'] ?? 0;
         $total = (int)$adultsCount + (int)$childrenCount + (int)$infantsCount;
-
+    
 
     
         // Store the collected data in a session array
@@ -158,6 +120,68 @@ session_start();
             'total' => $total
         ];
     }
+    // Revadation 
+    // Revalidation
+    if ($_SERVER["REQUEST_METHOD"] == "GET") {
+        if (isset($_GET['traceId']) && isset($_GET['purchaseId'])) {
+            $url = 'https://sandboxapi.getfares.com/Flights/Revalidation/v1';
+            $traceId = $_GET['traceId'];
+            $purchaseId = $_GET['purchaseId'];
+    
+            // Data to be sent in the body of the request
+            $data = [
+                "traceId" => $traceId,
+                "purchaseIds" => [$purchaseId]
+            ];
+    
+            // Convert data array to JSON format
+            $jsonData = json_encode($data);
+    
+            // Initialize cURL session
+            $ch = curl_init();
+    
+            // Set the URL and other options for the cURL session
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                "Authorization: Bearer $token"
+            ]);
+    
+            // Execute the cURL session and fetch the response
+            $response = curl_exec($ch);
+    
+            // Check for errors
+            if ($response === false) {
+                echo 'cURL Error: ' . curl_error($ch);
+            } else {
+                // Decode and print the response
+                $responseData = json_decode($response, true);
+    
+                // Check if the responseData has the 'flights' key and 'isFareChange' key within it
+                if (isset($responseData['flights'][0]['isFareChange']) && !$responseData['flights'][0]['isFareChange']) {
+                    // Redirect to book.php with the required parameters
+                    header("Location: book.php?traceId=$traceId&purchaseId=$purchaseId");
+                    exit(); // Make sure to call exit after redirect
+                } else {
+                    // Fare has changed, show an alert and redirect to index.php
+                    echo '<script type="text/javascript">';
+                    echo 'alert("The fare has changed. Please check the updated fare.");';
+                    echo 'window.location.href = "index.php";';
+                    echo '</script>';
+                    exit();
+                }
+            }
+    
+            // Close the cURL session
+            curl_close($ch);
+        } else {
+            echo 'Missing traceId or purchaseId';
+        }
+    }
+    
     isset($_SESSION ['formData']);
     if(isset($_POST['trip'])=="oneway"){
         // API endpoint
@@ -273,24 +297,13 @@ session_start();
         // Close the cURL session
         curl_close($ch);
     }
-    // echo "Trip Type: " . ($tripType ?? '') . "<br>";
-    // echo "Fare Type: " . ($fareType ?? '') . "<br>";
-    // echo "Depart From: " . ($departFrom ?? '') . "<br>";
-    // echo "Flying To: " . ($flyingTo ?? '') . "<br>";
-    // echo "Departure Date: " . ($departureDate ?? '') . "<br>";
-    // echo "Return Date: " . ($returnDate ?? '') . "<br>";
-    // echo "Travel Class: " . ($travelClass ?? '') . "<br>";
-    // echo "Adults Count: " . ($adultsCount ?? 1) . "<br>";
-    // echo "Children Count: " . ($childrenCount ?? 0) . "<br>";
-    // echo "Infants Count: " . ($infantsCount ?? 0) . "<br>";
-    // var_dump(isset($_SESSION ['formData']));
     ?>
     <div class="container my-5">
         <div class="bg-warning p-4 rounded">
             <div class="d-flex align-items-center mb-3">
                 <h2 class="mb-0 mr-3"><i class="fas fa-plane"></i> Flights</h2>
             </div>
-            <form action="" method="post" id="flightSearchForm">
+            <form action="" method="post" name="search" id="flightSearchForm">
                 <div class="form-row mb-3">
                     <div class="col">
                         <div class="form-check form-check-inline">
@@ -396,91 +409,94 @@ session_start();
     </div>
     <?php if (isset($responseData)): ?>     
     <?php foreach ($responseData['flights'] as $index => $flight): ?>
-        <div class="container my-5">
-            <div class="flight-result">
-                <div class="d-flex justify-content-between">
-                    <div class="price">
-                        <?php
-                        $baseFare = $flight['fareGroups'][0]['fares'][0]['base'];
-                        echo number_format($baseFare, 2) . " INR";
-                        ?>
-                    </div>
-                    <div>Price p.p.</div>
-                </div>
-                <div class="flight-info mt-3">
-                    <span>
-                        Total price: <?php echo $flight['adtNum']; ?>× Adults –
-                        <?php echo number_format($baseFare * $flight['adtNum'], 2) . " INR"; ?>
-                    </span>
-                    <div class="mt-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Outbound</strong> <?php echo $flight['fareGroups'][0]['fareType']; ?> fare (<?php echo $flight['fareGroups'][0]['priceClass']; ?>)
-                            </div>
-                            <div><?php echo $flight['airline']; ?></div>
+        <form action="" method="get" name="book" class="bookForm">
+            <div class="container my-5">
+                <div class="flight-result">
+                    <div class="d-flex justify-content-between">
+                        <div class="price">
+                            <?php
+                            $baseFare = $flight['fareGroups'][0]['fares'][0]['base'];
+                            echo number_format($baseFare, 2) . " INR";
+                            ?>
+                            <input type="text" name="traceId" id="traceId" value="<?php echo  $responseData['traceId']?>" hidden>
                         </div>
-                        <?php foreach ($flight['segGroups'] as $segGroup): ?>
-                            <?php foreach ($segGroup['segs'] as $segment): ?>
-                                <div class="d-flex justify-content-between align-items-center mt-2">
-                                    <div>
-                                        <i class="fas fa-plane"></i> <?php echo date("H:i d.m.Y", strtotime($segment['departureOn'])); ?> <?php echo $segment['origin']; ?>
-                                    </div>
-                                    <div>
-                                        <i class="fas fa-clock"></i> <?php echo floor($segment['duration'] / 60); ?>h <?php echo $segment['duration'] % 60; ?>m
-                                    </div>
-                                    <div>
-                                        <i class="fas fa-plane-arrival"></i> <?php echo date("H:i d.m.Y", strtotime($segment['arrivalOn'])); ?> <?php echo $segment['destination']; ?>
-                                    </div>
+                        <div>Price p.p.</div>
+                    </div>
+                    <div class="flight-info mt-3">
+                        <span>
+                            Total price: <?php echo $flight['adtNum']; ?>× Adults –
+                            <?php echo number_format($baseFare * $flight['adtNum'], 2) . " INR"; ?>
+                        </span>
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Outbound</strong> <?php echo $flight['fareGroups'][0]['fareType']; ?> fare (<?php echo $flight['fareGroups'][0]['priceClass']; ?>)
                                 </div>
+                                <div><?php echo $flight['airline']; ?></div>
+                            </div>
+                            <?php foreach ($flight['segGroups'] as $segGroup): ?>
+                                <?php foreach ($segGroup['segs'] as $segment): ?>
+                                    <div class="d-flex justify-content-between align-items-center mt-2">
+                                        <div>
+                                            <i class="fas fa-plane"></i> <?php echo date("H:i d.m.Y", strtotime($segment['departureOn'])); ?> <?php echo $segment['origin']; ?>
+                                        </div>
+                                        <div>
+                                            <i class="fas fa-clock"></i> <?php echo floor($segment['duration'] / 60); ?>h <?php echo $segment['duration'] % 60; ?>m
+                                        </div>
+                                        <div>
+                                            <i class="fas fa-plane-arrival"></i> <?php echo date("H:i d.m.Y", strtotime($segment['arrivalOn'])); ?> <?php echo $segment['destination']; ?>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
                             <?php endforeach; ?>
-                        <?php endforeach; ?>
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <div class="available-seats">
-                                <?php
-                                $minSeats = PHP_INT_MAX;
-                                $seatInfoAvailable = false;
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div class="available-seats">
+                                    <?php
+                                    $minSeats = PHP_INT_MAX;
+                                    $seatInfoAvailable = false;
 
-                                if (isset($flight['fareGroups']) && is_array($flight['fareGroups'])) {
-                                    foreach ($flight['fareGroups'] as $fareGroup) {
-                                        if (isset($fareGroup['segInfos']) && is_array($fareGroup['segInfos'])) {
-                                            foreach ($fareGroup['segInfos'] as $segInfo) {
-                                                if (isset($segInfo['seatRemaining'])) {
-                                                    $minSeats = min($minSeats, $segInfo['seatRemaining']);
-                                                    $seatInfoAvailable = true;
+                                    if (isset($flight['fareGroups']) && is_array($flight['fareGroups'])) {
+                                        foreach ($flight['fareGroups'] as $fareGroup) {
+                                            if (isset($fareGroup['segInfos']) && is_array($fareGroup['segInfos'])) {
+                                                foreach ($fareGroup['segInfos'] as $segInfo) {
+                                                    if (isset($segInfo['seatRemaining'])) {
+                                                        $minSeats = min($minSeats, $segInfo['seatRemaining']);
+                                                        $seatInfoAvailable = true;
+                                                    }
                                                 }
                                             }
                                         }
                                     }
-                                }
 
-                                if ($seatInfoAvailable) {
-                                    echo "At least $minSeats seats available<br>";
-                                } else {
-                                    echo "Seat information not available<br>";
-                                }
-                                ?>
+                                    if ($seatInfoAvailable) {
+                                        echo "At least $minSeats seats available<br>";
+                                    } else {
+                                        echo "Seat information not available<br>";
+                                    }
+                                    ?>
+                                    <input type="text" name="purchaseId" id="purchaseId" value="<?php echo  $fareGroup['purchaseId']?>" hidden>
+                                </div>
+                                <button type="submit" class="btn book-button" >Book this offer</button>
                             </div>
-                            <a href="book.php?traceId=<?php echo  $responseData['traceId']?>&purchaseId=<?php echo  $fareGroup['purchaseId']?>" class="btn book-button">Book this offer</a>
-                        </div>
-                        <div class="mt-3">
-                            <span class="price-breakdown" data-index="<?php echo $index; ?>">+ DISPLAY PRICE BREAKDOWN</span>
-                        </div>
-                        <div class="price-breakdown-content" id="price-breakdown-<?php echo $index; ?>">
+                            <div class="mt-3">
+                                <span class="price-breakdown" data-index="<?php echo $index; ?>">+ DISPLAY PRICE BREAKDOWN</span>
+                            </div>
+                            <div class="price-breakdown-content" id="price-breakdown-<?php echo $index; ?>">
                             <?php foreach($fareGroup['fares'] as $fare):?>
-                                <p style="margin: 12px 0 6px 12px;">
+                                    <p style="margin: 12px 0 6px 12px;">
                                     <?php if($fare['paxType']=="ADT"){
-                                        echo "Adult";
+                                            echo "Adult";
                                     }elseif($fare['paxType']=="CHD"){
-                                        echo "Child";
+                                            echo "Child";
                                     }else{
-                                        echo "Infant";
+                                            echo "Infant";
                                     }?> : <?php echo number_format($fare['base'], 2)?></p>
                             <?php endforeach;?>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </form>
     <?php endforeach; ?>
 <?php endif; ?>
 <script>
@@ -634,30 +650,6 @@ session_start();
                 $(this).text('+ DISPLAY PRICE BREAKDOWN');
             }
         });
-        $('#bookNow').click(function() {
-            // Define your variables here
-            var token = '<?php echo $token;?>';
-            var traceId = '<?php echo $response['traceId'];?>';
-            var purchaseId = '<?php echo $response['flights']['fareGroups']['purchaseId'];?>';
-
-            $.ajax({
-                url: 'api.php',
-                type: 'POST',
-                data: {
-                    action: 'revalidate',
-                    token: token,
-                    traceId: traceId,
-                    purchaseId: purchaseId
-                },
-                success: function(response) {
-                    console.log('Revalidation successful:', response);
-                    // You can handle the response here
-                },
-                error: function(xhr, status, error) {
-                    console.log('An error occurred:', error);
-                }
-            });
-        });
     });
     document.addEventListener('DOMContentLoaded', function() {
         var studentFaresRadio = document.getElementById('studentFares');
@@ -672,7 +664,6 @@ session_start();
             }
         });
     });
-
 </script>
 </body>
 </html>

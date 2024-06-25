@@ -1,8 +1,8 @@
 {
-    "traceId": "19562471-43c2-4ce5-b2bc-63cb1c6a6191",
+    "traceId": "22b93a79-07d7-4dc5-bfba-7442b205480e",
     "flights": [
         {
-            "airline": "BA",
+            "airline": "SQ",
             "adtNum": 1,
             "chdNum": 0,
             "infNum": 0,
@@ -10,36 +10,37 @@
             "clientId": 0,
             "segGroups": [
                 {
-                    "origin": "BOM",
-                    "destination": "AMS",
-                    "departureOn": "2024-06-24T00:00:00",
+                    "origin": "DEL",
+                    "destination": "DXB",
+                    "departureOn": "2024-12-06T00:00:00",
                     "segs": [
                         {
                             "isReturn": false,
-                            "origin": "BOM",
-                            "destination": "LHR",
-                            "departureOn": "2024-06-24T01:40:00",
-                            "arrivalOn": "2024-06-24T06:55:00",
-                            "duration": 585,
-                            "flightNum": "138",
-                            "eqpType": "77W",
-                            "mrkAirline": "BA",
-                            "depTerminal": "2",
-                            "arrTerminal": "5",
-                            "opAirline": "BA"
+                            "origin": "DEL",
+                            "destination": "SIN",
+                            "departureOn": "2024-12-06T21:50:00",
+                            "arrivalOn": "2024-12-07T06:00:00",
+                            "duration": 340,
+                            "flightNum": "403",
+                            "eqpType": "388",
+                            "mrkAirline": "SQ",
+                            "depTerminal": "3",
+                            "arrTerminal": "0",
+                            "opAirline": "SQ"
                         },
                         {
                             "isReturn": false,
-                            "origin": "LHR",
-                            "destination": "AMS",
-                            "departureOn": "2024-06-24T14:35:00",
-                            "arrivalOn": "2024-06-24T16:55:00",
-                            "duration": 80,
-                            "flightNum": "432",
-                            "eqpType": "32A",
-                            "mrkAirline": "BA",
-                            "depTerminal": "5",
-                            "opAirline": "BA"
+                            "origin": "SIN",
+                            "destination": "DXB",
+                            "departureOn": "2024-12-08T15:05:00",
+                            "arrivalOn": "2024-12-08T18:45:00",
+                            "duration": 460,
+                            "flightNum": "494",
+                            "eqpType": "359",
+                            "mrkAirline": "SQ",
+                            "depTerminal": "3",
+                            "arrTerminal": "1",
+                            "opAirline": "SQ"
                         }
                     ]
                 }
@@ -47,81 +48,78 @@
             "currency": "INR",
             "fareGroups": [
                 {
+                    "purchaseId": "638544600918755155",
                     "refundable": true,
                     "totalAmount": 0,
                     "fareType": "Publish",
-                    "priceClass": "FIRST FULLY FLEX-FIRST FULLY FLEX",
+                    "priceClass": "ECONOMY STANDARD-ECONOMY STANDARD",
                     "pricedDescription": [
                         {
-                            "description": "SEAT CHOICE",
-                            "type": "Seat",
-                            "status": "Included",
+                            "description": "50 PERCENT KF MILES EARNED",
+                            "type": "None",
+                            "status": "NotIncluded",
                             "returnStatus": "None"
                         },
                         {
-                            "description": "CHANGE BEFORE DEPARTURE",
-                            "type": "ReBooking",
-                            "status": "Included",
-                            "returnStatus": "None"
-                        },
-                        {
-                            "description": "REFUND BEFORE DEPARTURE",
-                            "type": "Refund",
-                            "status": "Included",
-                            "returnStatus": "None"
-                        },
-                        {
-                            "description": "CABIN BAG MAX 23KG 51LB 126LCM",
-                            "type": "CarryOn",
-                            "status": "Included",
-                            "returnStatus": "None"
-                        },
-                        {
-                            "description": "3 BAGS MAX 32KG 70LB EACH",
-                            "type": "CheckInBag",
-                            "status": "Included",
-                            "returnStatus": "None"
-                        },
-                        {
-                            "description": "LOUNGE ACCESS",
+                            "description": "75 PERCENT KF MILES EARNED",
                             "type": "None",
                             "status": "Included",
                             "returnStatus": "None"
                         },
                         {
-                            "description": "PREMIUM CATERING",
-                            "type": "Meal",
+                            "description": "SEAT SELECTION STANDARD ZONE",
+                            "type": "Seat",
                             "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "CANCELLATION",
+                            "type": "Refund",
+                            "status": "Chargeable",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "BOOKING CHANGE",
+                            "type": "ReBooking",
+                            "status": "Chargeable",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "UP TO 30KG BAGGAGE",
+                            "type": "CheckInBag",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "NO SHOW",
+                            "type": "None",
+                            "status": "Chargeable",
                             "returnStatus": "None"
                         }
                     ],
                     "fares": [
                         {
                             "paxType": "ADT",
-                            "base": 507416.66,
+                            "base": 65833.33,
                             "taxes": [
                                 {
-                                    "amt": 28166.67,
-                                    "code": "YQI"
+                                    "amt": 1666.67,
+                                    "code": "YRI"
                                 },
                                 {
-                                    "amt": 2791.67,
-                                    "code": "YQI"
+                                    "amt": 116.67,
+                                    "code": "ZR"
                                 },
                                 {
-                                    "amt": 1450.00,
-                                    "code": "UB"
-                                },
-                                {
-                                    "amt": 265.83,
+                                    "amt": 58.33,
                                     "code": "IN"
                                 },
                                 {
-                                    "amt": 60300.00,
+                                    "amt": 3050.00,
                                     "code": "K38"
                                 },
                                 {
-                                    "amt": 3716.67,
+                                    "amt": 83.33,
                                     "code": "K3B"
                                 },
                                 {
@@ -129,8 +127,16 @@
                                     "code": "P2"
                                 },
                                 {
-                                    "amt": 708.33,
-                                    "code": "YM"
+                                    "amt": 190.00,
+                                    "code": "WO"
+                                },
+                                {
+                                    "amt": 183.33,
+                                    "code": "L7"
+                                },
+                                {
+                                    "amt": 366.67,
+                                    "code": "SG"
                                 }
                             ]
                         }
@@ -138,22 +144,152 @@
                     "grossFare": 0,
                     "clientMarkup": 0,
                     "netFare": 0,
-                    "baggages": [
+                    "miniRules": [
                         {
-                            "airline": "BA",
+                            "changeAllowed": true,
+                            "cancelAllowed": false,
+                            "canAmt": 0,
+                            "exgAmt": 1666.67,
                             "paxType": "ADT",
-                            "checkInBag": "3PC",
-                            "cabinBag": "7KG",
-                            "cityPair": "BOMLHR"
+                            "apply": "Before"
                         },
                         {
-                            "airline": "BA",
+                            "changeAllowed": true,
+                            "cancelAllowed": false,
+                            "canAmt": 0,
+                            "exgAmt": 1666.67,
                             "paxType": "ADT",
-                            "checkInBag": "3PC",
-                            "cabinBag": "7KG",
-                            "cityPair": "LHRAMS"
+                            "apply": "After"
+                        },
+                        {
+                            "changeAllowed": false,
+                            "cancelAllowed": true,
+                            "canAmt": 8333.33,
+                            "exgAmt": 0,
+                            "paxType": "ADT",
+                            "apply": "Before"
+                        },
+                        {
+                            "changeAllowed": false,
+                            "cancelAllowed": true,
+                            "canAmt": 8333.33,
+                            "exgAmt": 0,
+                            "paxType": "ADT",
+                            "apply": "After"
                         }
                     ],
+                    "segInfos": [
+                        {
+                            "cityPair": "DELSIN",
+                            "rbd": "W",
+                            "cabinClass": "Economy",
+                            "seatRemaining": 9
+                        },
+                        {
+                            "cityPair": "SINDXB",
+                            "rbd": "W",
+                            "cabinClass": "Economy",
+                            "seatRemaining": 9
+                        }
+                    ]
+                },
+                {
+                    "purchaseId": "638544600918755480",
+                    "refundable": true,
+                    "totalAmount": 0,
+                    "fareType": "Publish",
+                    "priceClass": "ECONOMY FLEXI-ECONOMY FLEXI",
+                    "pricedDescription": [
+                        {
+                            "description": "50 PERCENT KF MILES EARNED",
+                            "type": "None",
+                            "status": "NotIncluded",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "100 PERCENT KF MILES EARNED",
+                            "type": "None",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "SEAT SELECTION STANDARD ZONE",
+                            "type": "Seat",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "CANCELLATION",
+                            "type": "Refund",
+                            "status": "Chargeable",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "BOOKING CHANGE",
+                            "type": "ReBooking",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "UP TO 30KG BAGGAGE",
+                            "type": "CheckInBag",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "NO SHOW",
+                            "type": "None",
+                            "status": "Chargeable",
+                            "returnStatus": "None"
+                        }
+                    ],
+                    "fares": [
+                        {
+                            "paxType": "ADT",
+                            "base": 95916.67,
+                            "taxes": [
+                                {
+                                    "amt": 1666.67,
+                                    "code": "YRI"
+                                },
+                                {
+                                    "amt": 116.67,
+                                    "code": "ZR"
+                                },
+                                {
+                                    "amt": 58.33,
+                                    "code": "IN"
+                                },
+                                {
+                                    "amt": 4550.00,
+                                    "code": "K38"
+                                },
+                                {
+                                    "amt": 83.33,
+                                    "code": "K3B"
+                                },
+                                {
+                                    "amt": 1180.00,
+                                    "code": "P2"
+                                },
+                                {
+                                    "amt": 190.00,
+                                    "code": "WO"
+                                },
+                                {
+                                    "amt": 183.33,
+                                    "code": "L7"
+                                },
+                                {
+                                    "amt": 366.67,
+                                    "code": "SG"
+                                }
+                            ]
+                        }
+                    ],
+                    "grossFare": 0,
+                    "clientMarkup": 0,
+                    "netFare": 0,
                     "miniRules": [
                         {
                             "changeAllowed": true,
@@ -176,7 +312,7 @@
                         {
                             "changeAllowed": false,
                             "cancelAllowed": true,
-                            "canAmt": 0,
+                            "canAmt": 4166.67,
                             "exgAmt": 0,
                             "paxType": "ADT",
                             "apply": "Before"
@@ -184,7 +320,7 @@
                         {
                             "changeAllowed": false,
                             "cancelAllowed": true,
-                            "canAmt": 0,
+                            "canAmt": 4166.67,
                             "exgAmt": 0,
                             "paxType": "ADT",
                             "apply": "After"
@@ -192,39 +328,613 @@
                     ],
                     "segInfos": [
                         {
-                            "cityPair": "BOMLHR",
-                            "rbd": "F",
-                            "cabinClass": "First",
-                            "seatRemaining": 7
+                            "cityPair": "DELSIN",
+                            "rbd": "E",
+                            "cabinClass": "Economy",
+                            "seatRemaining": 9
                         },
                         {
-                            "cityPair": "LHRAMS",
+                            "cityPair": "SINDXB",
+                            "rbd": "E",
+                            "cabinClass": "Economy",
+                            "seatRemaining": 9
+                        }
+                    ]
+                },
+                {
+                    "purchaseId": "638544600918755626",
+                    "refundable": true,
+                    "totalAmount": 0,
+                    "fareType": "Publish",
+                    "priceClass": "PREMIUM ECONOMY STANDARD-PREMIUM ECONOMY STANDARD",
+                    "pricedDescription": [
+                        {
+                            "description": "50 PERCENT KF MILES EARNED",
+                            "type": "None",
+                            "status": "NotIncluded",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "100 PERCENT KF MILES EARNED",
+                            "type": "None",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "SEAT SELECTION STANDARD ZONE",
+                            "type": "Seat",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "CANCELLATION",
+                            "type": "Refund",
+                            "status": "Chargeable",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "BOOKING CHANGE",
+                            "type": "ReBooking",
+                            "status": "Chargeable",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "UP TO 35KG BAGGAGE",
+                            "type": "CheckInBag",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "NO SHOW",
+                            "type": "None",
+                            "status": "Chargeable",
+                            "returnStatus": "None"
+                        }
+                    ],
+                    "fares": [
+                        {
+                            "paxType": "ADT",
+                            "base": 116333.33,
+                            "taxes": [
+                                {
+                                    "amt": 1666.67,
+                                    "code": "YRI"
+                                },
+                                {
+                                    "amt": 116.67,
+                                    "code": "ZR"
+                                },
+                                {
+                                    "amt": 58.33,
+                                    "code": "IN"
+                                },
+                                {
+                                    "amt": 13366.67,
+                                    "code": "K38"
+                                },
+                                {
+                                    "amt": 200.00,
+                                    "code": "K3B"
+                                },
+                                {
+                                    "amt": 1180.00,
+                                    "code": "P2"
+                                },
+                                {
+                                    "amt": 190.00,
+                                    "code": "WO"
+                                },
+                                {
+                                    "amt": 183.33,
+                                    "code": "L7"
+                                },
+                                {
+                                    "amt": 366.67,
+                                    "code": "SG"
+                                }
+                            ]
+                        }
+                    ],
+                    "grossFare": 0,
+                    "clientMarkup": 0,
+                    "netFare": 0,
+                    "miniRules": [
+                        {
+                            "changeAllowed": true,
+                            "cancelAllowed": false,
+                            "canAmt": 0,
+                            "exgAmt": 4166.67,
+                            "paxType": "ADT",
+                            "apply": "Before"
+                        },
+                        {
+                            "changeAllowed": true,
+                            "cancelAllowed": false,
+                            "canAmt": 0,
+                            "exgAmt": 4166.67,
+                            "paxType": "ADT",
+                            "apply": "After"
+                        },
+                        {
+                            "changeAllowed": false,
+                            "cancelAllowed": true,
+                            "canAmt": 12500.00,
+                            "exgAmt": 0,
+                            "paxType": "ADT",
+                            "apply": "Before"
+                        },
+                        {
+                            "changeAllowed": false,
+                            "cancelAllowed": true,
+                            "canAmt": 12500.00,
+                            "exgAmt": 0,
+                            "paxType": "ADT",
+                            "apply": "After"
+                        }
+                    ],
+                    "segInfos": [
+                        {
+                            "cityPair": "DELSIN",
+                            "rbd": "L",
+                            "cabinClass": "PremiumEconomy",
+                            "seatRemaining": 9
+                        },
+                        {
+                            "cityPair": "SINDXB",
+                            "rbd": "M",
+                            "cabinClass": "Economy",
+                            "seatRemaining": 9
+                        }
+                    ]
+                },
+                {
+                    "purchaseId": "638544600918755750",
+                    "refundable": true,
+                    "totalAmount": 0,
+                    "fareType": "Publish",
+                    "priceClass": "PREMIUM ECONOMY FLEXI-PREMIUM ECONOMY FLEXI",
+                    "pricedDescription": [
+                        {
+                            "description": "50 PERCENT KF MILES EARNED",
+                            "type": "None",
+                            "status": "NotIncluded",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "125 PERCENT KF MILES EARNED",
+                            "type": "None",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "SEAT SELECTION STANDARD ZONE",
+                            "type": "Seat",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "CANCELLATION",
+                            "type": "Refund",
+                            "status": "Chargeable",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "BOOKING CHANGE",
+                            "type": "ReBooking",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "UP TO 35KG BAGGAGE",
+                            "type": "CheckInBag",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "NO SHOW",
+                            "type": "None",
+                            "status": "Chargeable",
+                            "returnStatus": "None"
+                        }
+                    ],
+                    "fares": [
+                        {
+                            "paxType": "ADT",
+                            "base": 134000.00,
+                            "taxes": [
+                                {
+                                    "amt": 1666.67,
+                                    "code": "YRI"
+                                },
+                                {
+                                    "amt": 116.67,
+                                    "code": "ZR"
+                                },
+                                {
+                                    "amt": 58.33,
+                                    "code": "IN"
+                                },
+                                {
+                                    "amt": 15491.67,
+                                    "code": "K38"
+                                },
+                                {
+                                    "amt": 200.00,
+                                    "code": "K3B"
+                                },
+                                {
+                                    "amt": 1180.00,
+                                    "code": "P2"
+                                },
+                                {
+                                    "amt": 190.00,
+                                    "code": "WO"
+                                },
+                                {
+                                    "amt": 183.33,
+                                    "code": "L7"
+                                },
+                                {
+                                    "amt": 366.67,
+                                    "code": "SG"
+                                }
+                            ]
+                        }
+                    ],
+                    "grossFare": 0,
+                    "clientMarkup": 0,
+                    "netFare": 0,
+                    "miniRules": [
+                        {
+                            "changeAllowed": true,
+                            "cancelAllowed": false,
+                            "canAmt": 0,
+                            "exgAmt": 0,
+                            "paxType": "ADT",
+                            "apply": "Before",
+                            "remarks": "As per Airline Applicable"
+                        },
+                        {
+                            "changeAllowed": true,
+                            "cancelAllowed": false,
+                            "canAmt": 0,
+                            "exgAmt": 0,
+                            "paxType": "ADT",
+                            "apply": "After",
+                            "remarks": "As per Airline Applicable"
+                        },
+                        {
+                            "changeAllowed": false,
+                            "cancelAllowed": true,
+                            "canAmt": 4166.67,
+                            "exgAmt": 0,
+                            "paxType": "ADT",
+                            "apply": "Before"
+                        },
+                        {
+                            "changeAllowed": false,
+                            "cancelAllowed": true,
+                            "canAmt": 4166.67,
+                            "exgAmt": 0,
+                            "paxType": "ADT",
+                            "apply": "After"
+                        }
+                    ],
+                    "segInfos": [
+                        {
+                            "cityPair": "DELSIN",
+                            "rbd": "T",
+                            "cabinClass": "PremiumEconomy",
+                            "seatRemaining": 9
+                        },
+                        {
+                            "cityPair": "SINDXB",
+                            "rbd": "B",
+                            "cabinClass": "Economy",
+                            "seatRemaining": 9
+                        }
+                    ]
+                },
+                {
+                    "purchaseId": "638544600918756147",
+                    "refundable": true,
+                    "totalAmount": 0,
+                    "fareType": "Publish",
+                    "priceClass": "BUSINESS FLEXI-BUSINESS FLEXI",
+                    "pricedDescription": [
+                        {
+                            "description": "50 PERCENT KF MILES EARNED",
+                            "type": "None",
+                            "status": "NotIncluded",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "150 PERCENT KF MILES EARNED",
+                            "type": "None",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "SEAT SELECTION STANDARD ZONE",
+                            "type": "Seat",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "CANCELLATION",
+                            "type": "Refund",
+                            "status": "Chargeable",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "BOOKING CHANGE",
+                            "type": "ReBooking",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "UP TO 40KG BAGGAGE",
+                            "type": "CheckInBag",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "NO SHOW",
+                            "type": "None",
+                            "status": "Chargeable",
+                            "returnStatus": "None"
+                        }
+                    ],
+                    "fares": [
+                        {
+                            "paxType": "ADT",
+                            "base": 255166.67,
+                            "taxes": [
+                                {
+                                    "amt": 1666.67,
+                                    "code": "YRI"
+                                },
+                                {
+                                    "amt": 116.67,
+                                    "code": "ZR"
+                                },
+                                {
+                                    "amt": 58.33,
+                                    "code": "IN"
+                                },
+                                {
+                                    "amt": 30033.33,
+                                    "code": "K38"
+                                },
+                                {
+                                    "amt": 200.00,
+                                    "code": "K3B"
+                                },
+                                {
+                                    "amt": 1180.00,
+                                    "code": "P2"
+                                },
+                                {
+                                    "amt": 190.00,
+                                    "code": "WO"
+                                },
+                                {
+                                    "amt": 183.33,
+                                    "code": "L7"
+                                },
+                                {
+                                    "amt": 366.67,
+                                    "code": "SG"
+                                }
+                            ]
+                        }
+                    ],
+                    "grossFare": 0,
+                    "clientMarkup": 0,
+                    "netFare": 0,
+                    "miniRules": [
+                        {
+                            "changeAllowed": true,
+                            "cancelAllowed": false,
+                            "canAmt": 0,
+                            "exgAmt": 0,
+                            "paxType": "ADT",
+                            "apply": "Before",
+                            "remarks": "As per Airline Applicable"
+                        },
+                        {
+                            "changeAllowed": true,
+                            "cancelAllowed": false,
+                            "canAmt": 0,
+                            "exgAmt": 0,
+                            "paxType": "ADT",
+                            "apply": "After",
+                            "remarks": "As per Airline Applicable"
+                        },
+                        {
+                            "changeAllowed": false,
+                            "cancelAllowed": true,
+                            "canAmt": 8333.33,
+                            "exgAmt": 0,
+                            "paxType": "ADT",
+                            "apply": "Before"
+                        },
+                        {
+                            "changeAllowed": false,
+                            "cancelAllowed": true,
+                            "canAmt": 8333.33,
+                            "exgAmt": 0,
+                            "paxType": "ADT",
+                            "apply": "After"
+                        }
+                    ],
+                    "segInfos": [
+                        {
+                            "cityPair": "DELSIN",
                             "rbd": "J",
                             "cabinClass": "Business",
-                            "seatRemaining": 2
+                            "seatRemaining": 8
+                        },
+                        {
+                            "cityPair": "SINDXB",
+                            "rbd": "J",
+                            "cabinClass": "Business",
+                            "seatRemaining": 4
+                        }
+                    ]
+                },
+                {
+                    "purchaseId": "638544600918756147",
+                    "refundable": true,
+                    "totalAmount": 0,
+                    "fareType": "Publish",
+                    "priceClass": "BUSINESS FLEXI-BUSINESS FLEXI",
+                    "pricedDescription": [
+                        {
+                            "description": "50 PERCENT KF MILES EARNED",
+                            "type": "None",
+                            "status": "NotIncluded",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "150 PERCENT KF MILES EARNED",
+                            "type": "None",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "SEAT SELECTION STANDARD ZONE",
+                            "type": "Seat",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "CANCELLATION",
+                            "type": "Refund",
+                            "status": "Chargeable",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "BOOKING CHANGE",
+                            "type": "ReBooking",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "UP TO 40KG BAGGAGE",
+                            "type": "CheckInBag",
+                            "status": "Included",
+                            "returnStatus": "None"
+                        },
+                        {
+                            "description": "NO SHOW",
+                            "type": "None",
+                            "status": "Chargeable",
+                            "returnStatus": "None"
+                        }
+                    ],
+                    "fares": [
+                        {
+                            "paxType": "ADT",
+                            "base": 255166.67,
+                            "taxes": [
+                                {
+                                    "amt": 1666.67,
+                                    "code": "YRI"
+                                },
+                                {
+                                    "amt": 116.67,
+                                    "code": "ZR"
+                                },
+                                {
+                                    "amt": 58.33,
+                                    "code": "IN"
+                                },
+                                {
+                                    "amt": 30033.33,
+                                    "code": "K38"
+                                },
+                                {
+                                    "amt": 200.00,
+                                    "code": "K3B"
+                                },
+                                {
+                                    "amt": 1180.00,
+                                    "code": "P2"
+                                },
+                                {
+                                    "amt": 190.00,
+                                    "code": "WO"
+                                },
+                                {
+                                    "amt": 183.33,
+                                    "code": "L7"
+                                },
+                                {
+                                    "amt": 366.67,
+                                    "code": "SG"
+                                }
+                            ]
+                        }
+                    ],
+                    "grossFare": 0,
+                    "clientMarkup": 0,
+                    "netFare": 0,
+                    "miniRules": [
+                        {
+                            "changeAllowed": true,
+                            "cancelAllowed": false,
+                            "canAmt": 0,
+                            "exgAmt": 0,
+                            "paxType": "ADT",
+                            "apply": "Before",
+                            "remarks": "As per Airline Applicable"
+                        },
+                        {
+                            "changeAllowed": true,
+                            "cancelAllowed": false,
+                            "canAmt": 0,
+                            "exgAmt": 0,
+                            "paxType": "ADT",
+                            "apply": "After",
+                            "remarks": "As per Airline Applicable"
+                        },
+                        {
+                            "changeAllowed": false,
+                            "cancelAllowed": true,
+                            "canAmt": 8333.33,
+                            "exgAmt": 0,
+                            "paxType": "ADT",
+                            "apply": "Before"
+                        },
+                        {
+                            "changeAllowed": false,
+                            "cancelAllowed": true,
+                            "canAmt": 8333.33,
+                            "exgAmt": 0,
+                            "paxType": "ADT",
+                            "apply": "After"
+                        }
+                    ],
+                    "segInfos": [
+                        {
+                            "cityPair": "DELSIN",
+                            "rbd": "J",
+                            "cabinClass": "Business",
+                            "seatRemaining": 8
+                        },
+                        {
+                            "cityPair": "SINDXB",
+                            "rbd": "J",
+                            "cabinClass": "Business",
+                            "seatRemaining": 4
                         }
                     ]
                 }
             ],
             "content": "GDS",
-            "vendor": "NotAssigned",
+            "vendor": "1SR",
+            "passThrough": false,
             "isHold": false
         }
-    ],
-    "passengerRequiredFields": [
-        {
-            "paxType": "ADT",
-            "email": true,
-            "dob": false,
-            "gender": false,
-            "areaCode": false,
-            "mobile": true,
-            "passportNumber": true,
-            "passengerNationality": true,
-            "passportDOI": false,
-            "passportDOE": true,
-            "passportIssuedCountry": true,
-            "address_CountryCode": false
-        }
-    ]
-}
+    }
