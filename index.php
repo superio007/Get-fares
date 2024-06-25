@@ -634,6 +634,30 @@ session_start();
                 $(this).text('+ DISPLAY PRICE BREAKDOWN');
             }
         });
+        $('#bookNow').click(function() {
+            // Define your variables here
+            var token = '<?php echo $token;?>';
+            var traceId = '<?php echo $response['traceId'];?>';
+            var purchaseId = '<?php echo $response['flights']['fareGroups']['purchaseId'];?>';
+
+            $.ajax({
+                url: 'api.php',
+                type: 'POST',
+                data: {
+                    action: 'revalidate',
+                    token: token,
+                    traceId: traceId,
+                    purchaseId: purchaseId
+                },
+                success: function(response) {
+                    console.log('Revalidation successful:', response);
+                    // You can handle the response here
+                },
+                error: function(xhr, status, error) {
+                    console.log('An error occurred:', error);
+                }
+            });
+        });
     });
     document.addEventListener('DOMContentLoaded', function() {
         var studentFaresRadio = document.getElementById('studentFares');
