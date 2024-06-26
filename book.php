@@ -1,3 +1,4 @@
+<<<<<<< homePush
 <?php
 session_start();
 $formData = $_SESSION['formData'];
@@ -245,195 +246,184 @@ $formData = $_SESSION['formData'];
 </head>
 
 <body>
-    <?php
-    // Database credentials
-    $db_host = 'localhost';
-    $db_user = 'root';
-    $db_pass = '';
-    $db_name = 'test';
+<?php
+// Database credentials
+$db_host = 'localhost';
+$db_user = 'root';
+$db_pass = '';
+$db_name = 'test';
 
-    // Create connection
-    $mysqli = new mysqli($db_host, $db_user, $db_pass, $db_name);
+// Create connection
+$mysqli = new mysqli($db_host, $db_user, $db_pass, $db_name);
 
-    // Check connection
-    if ($mysqli->connect_error) {
-        die("Connection failed: " . $mysqli->connect_error);
+// Check connection
+if ($mysqli->connect_error) {
+    die("Connection failed: " . $mysqli->connect_error);
+}
+
+$traceId = $_GET['traceId'];
+$purchaseId = $_GET['purchaseId'];
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $errors = [];
+
+    // Validation functions
+    function validate_required($field, $value) {
+        global $errors;
+        if (empty($value)) {
+            $errors[$field] = ucfirst(str_replace('-', ' ', $field)) . ' is required.';
+        }
     }
-    $traceId = $_GET['traceId'];
-    // echo $traceId;
-    $purchaseId = $_GET['purchaseId'];
-    // echo $purchaseId;
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        $errors = [];
 
-        // Validation functions
-        function validate_required($field, $value)
-        {
-            global $errors;
-            if (empty($value)) {
-                $errors[$field] = ucfirst(str_replace('-', ' ', $field)) . ' is required.';
+    function validate_date($day, $month, $year, $field_name) {
+        global $errors;
+        if (!checkdate((int)$month, (int)$day, (int)$year)) {
+            $errors[$field_name] = 'Invalid date for ' . str_replace('-', ' ', $field_name) . '.';
+        }
+    }
+
+    // Fetch and validate inputs
+    $titles = $_POST['title'];
+    $first_names = $_POST['first-name'];
+    $last_names = $_POST['last-name'];
+    $agentsids = $_POST['agents-id'];
+    $emailaddress = $_POST['email-address'];
+    $phonenumber = $_POST['phone-number'];
+    $country = $_POST['country'];
+    $city = $_POST['city'];
+    $zipcode = $_POST['zip-code'];
+    $address = $_POST['Address'];
+    $street = $_POST['street'];
+    $dob_days = $_POST['dob-day'];
+    $dob_months = $_POST['dob-month'];
+    $dob_years = $_POST['dob-year'];
+    $id_methods = $_POST['id-method'];
+    $genders = $_POST['gender'];
+    $id_numbers = $_POST['id-number'];
+    $state = $_POST['State'];
+    $country_code = $_POST['country-code'];
+    $id_expire_days = $_POST['id-expire-day'];
+    $id_expire_months = $_POST['id-expire-month'];
+    $id_expire_years = $_POST['id-expire-year'];
+    $id_issue_days = $_POST['id-issue-day'];
+    $id_issue_months = $_POST['id-issue-month'];
+    $id_issue_years = $_POST['id-issue-year'];
+    $country_issues = $_POST['country-issue'];
+    $country_births = $_POST['country-birth'];
+    $paxTypes = $_POST['paxType'];
+
+    // Validate shared fields once
+    validate_required('email-address', $emailaddress);
+    validate_required('phone-number', $phonenumber);
+    validate_required('country', $country);
+    validate_required('city', $city);
+    validate_required('zip-code', $zipcode);
+    validate_required('Address', $address);
+    validate_required('street', $street);
+    validate_required('State', $state);
+    validate_required('country-code', $country_code);
+
+    // Iterate over each passenger and validate their data
+    foreach ($titles as $index => $title) {
+        validate_required("title[$index]", $title);
+        validate_required("first-name[$index]", $first_names[$index]);
+        validate_required("last-name[$index]", $last_names[$index]);
+        validate_required("agents-id[$index]", $agentsids[$index]);
+        validate_required("dob-day[$index]", $dob_days[$index]);
+        validate_required("dob-month[$index]", $dob_months[$index]);
+        validate_required("dob-year[$index]", $dob_years[$index]);
+        if (!isset($errors["dob-day[$index]"]) && !isset($errors["dob-month[$index]"]) && !isset($errors["dob-year[$index]"])) {
+            validate_date($dob_days[$index], $dob_months[$index], $dob_years[$index], "date of birth[$index]");
+        }
+        validate_required("id-method[$index]", $id_methods[$index]);
+        validate_required("gender[$index]", $genders[$index]);
+        validate_required("id-number[$index]", $id_numbers[$index]);
+        validate_required("id-expire-day[$index]", $id_expire_days[$index]);
+        validate_required("id-expire-month[$index]", $id_expire_months[$index]);
+        validate_required("id-expire-year[$index]", $id_expire_years[$index]);
+        if (!isset($errors["id-expire-day[$index]"]) && !isset($errors["id-expire-month[$index]"]) && !isset($errors["id-expire-year[$index]"])) {
+            validate_date($id_expire_days[$index], $id_expire_months[$index], $id_expire_years[$index], "ID expire date[$index]");
+        }
+        validate_required("id-issue-day[$index]", $id_issue_days[$index]);
+        validate_required("id-issue-month[$index]", $id_issue_months[$index]);
+        validate_required("id-issue-year[$index]", $id_issue_years[$index]);
+        if (!isset($errors["id-issue-day[$index]"]) && !isset($errors["id-issue-month[$index]"]) && !isset($errors["id-issue-year[$index]"])) {
+            validate_date($id_issue_days[$index], $id_issue_months[$index], $id_issue_years[$index], "ID issue date[$index]");
+        }
+        validate_required("country-issue[$index]", $country_issues[$index]);
+        validate_required("country-birth[$index]", $country_births[$index]);
+        validate_required("paxType[$index]", $paxTypes[$index]);
+    }
+
+    if (empty($errors)) {
+        $stmt = $mysqli->prepare("INSERT INTO wpk4_backend_travel_booking_pax (traceId, purchaseid, salutation, fname, lname, email, gender, dob, paxType, mobile_no, passportNumber, passportDOI, passportDOE, passportIssuedCountry, seatPref, addressName, street, AddresState, postalCode, countryName, countryCode, city, passengerNationality) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+        // Iterate over each passenger and insert their data
+        foreach ($titles as $index => $title) {
+            $first_name = $first_names[$index];
+            $last_name = $last_names[$index];
+            $agentsid = $agentsids[$index];
+            $dob_day = $dob_days[$index];
+            $dob_month = $dob_months[$index];
+            $dob_year = $dob_years[$index];
+            $id_method = $id_methods[$index];
+            $gender = $genders[$index];
+            $id_number = $id_numbers[$index];
+            $id_expire_day = $id_expire_days[$index];
+            $id_expire_month = $id_expire_months[$index];
+            $id_expire_year = $id_expire_years[$index];
+            $id_issue_day = $id_issue_days[$index];
+            $id_issue_month = $id_issue_months[$index];
+            $id_issue_year = $id_issue_years[$index];
+            $country_issue = $country_issues[$index];
+            $country_birth = $country_births[$index];
+            $paxType = $paxTypes[$index];
+
+            $dob = $dob_year . '-' . str_pad($dob_month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($dob_day, 2, '0', STR_PAD_LEFT);
+            $idissueDate = $id_issue_year . '-' . str_pad($id_issue_month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($id_issue_day, 2, '0', STR_PAD_LEFT);
+            $idexpireDate = $id_expire_year . '-' . str_pad($id_expire_month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($id_expire_day, 2, '0', STR_PAD_LEFT);
+            $seatref = "N";
+
+            $stmt->bind_param("sssssssssssssssssssssss", 
+                $traceId, 
+                $purchaseId, 
+                $title, 
+                $first_name, 
+                $last_name, 
+                $emailaddress, 
+                $gender, 
+                $dob,
+                $paxType, 
+                $phonenumber, 
+                $id_number, 
+                $idissueDate, 
+                $idexpireDate, 
+                $country_issue, 
+                $seatref,
+                $address, 
+                $street, 
+                $state, 
+                $zipcode, 
+                $country, 
+                $country_code, 
+                $city,
+                $country_birth
+            );
+
+            // Execute the statement
+            if (!$stmt->execute()) {
+                echo "Error: " . $stmt->error;
             }
         }
 
-        function validate_date($day, $month, $year, $field_name)
-        {
-            global $errors;
-            if (!checkdate($month, $day, $year)) {
-                $errors[$field_name] = 'Invalid date for ' . str_replace('-', ' ', $field_name) . '.';
-            }
-        }
+        echo "All records created successfully";
 
-        // Fetch and validate inputs
-        $title = $_POST['title'];
-        validate_required('title', $title);
-
-        $first_name = $_POST['first-name'];
-        validate_required('first-name', $first_name);
-
-        $last_name = $_POST['last-name'];
-        validate_required('last-name', $last_name);
-
-        $agentsid = $_POST['agents-id'];
-        validate_required('agents-id', $agentsid);
-
-        $emailaddress = $_POST['email-address'];
-        validate_required('email-address', $emailaddress);
-
-        $phonenumber = $_POST['phone-number'];
-        validate_required('phone-number', $phonenumber);
-
-        $country = $_POST['country'];
-        validate_required('country', $country);
-
-        $city = $_POST['city'];
-        validate_required('city', $city);
-
-        $zipcode = $_POST['zip-code'];
-        validate_required('zip-code', $zipcode);
-
-        $Address = $_POST['Address'];
-        validate_required('Address', $Address);
-
-        $street = $_POST['street'];
-        validate_required('street', $street);
-
-        $dob_day = $_POST['dob-day'];
-        $dob_month = $_POST['dob-month'];
-        $dob_year = $_POST['dob-year'];
-        validate_required('dob-day', $dob_day);
-        validate_required('dob-month', $dob_month);
-        validate_required('dob-year', $dob_year);
-        if (!isset($errors['dob-day']) && !isset($errors['dob-month']) && !isset($errors['dob-year'])) {
-            validate_date($dob_day, $dob_month, $dob_year, 'date of birth');
-        }
-
-        $id_method = $_POST['id-method'];
-        validate_required('id-method', $id_method);
-
-        $gender = $_POST['gender'];
-        validate_required('gender', $gender);
-
-        $id_number = $_POST['id-number'];
-        validate_required('id-number', $id_number);
-
-        $State = $_POST['State'];
-        validate_required('State',$State);
-
-        $country_code = $_POST['country-code'];
-        validate_required('country-code',$country_code);
-
-        $emergency_emailaddress = isset($_POST['emergency_email-address']);
-
-        $emergency_phonenumber = isset($_POST['emergency_phone-number']);
-
-        $emergency_country = isset($_POST['emergency_country']);
-
-        $id_expire_day = $_POST['id-expire-day'];
-        $id_expire_month = $_POST['id-expire-month'];
-        $id_expire_year = $_POST['id-expire-year'];
-        validate_required('id-expire-day', $id_expire_day);
-        validate_required('id-expire-month', $id_expire_month);
-        validate_required('id-expire-year', $id_expire_year);
-        if (!isset($errors['id-expire-day']) && !isset($errors['id-expire-month']) && !isset($errors['id-expire-year'])) {
-            validate_date($id_expire_day, $id_expire_month, $id_expire_year, 'ID expire date');
-        }
-
-        $id_issue_day = $_POST['id-issue-day'];
-        $id_issue_month = $_POST['id-issue-month'];
-        $id_issue_year = $_POST['id-issue-year'];
-        validate_required('id-issue-day', $id_issue_day);
-        validate_required('id-issue-month', $id_issue_month);
-        validate_required('id-issue-year', $id_issue_year);
-        if (!isset($errors['id-issue-day']) && !isset($errors['id-issue-month']) && !isset($errors['id-issue-year'])) {
-            validate_date($id_issue_day, $id_issue_month, $id_issue_year, 'ID expire date');
-        }
-
-        $country_issue = $_POST['country-issue'];
-        validate_required('country-issue', $country_issue);
-
-        $country_birth = $_POST['country-birth'];
-        validate_required('country-birth', $country_birth);
-
-        if(isset($_POST['paxType'])){
-            $paxType = $_POST['paxType'];
-            if($paxType == "Adult"){
-                $paxType = "ADT";
-            }elseif($paxType == "Child"){
-                $paxType = "CHD";
-            }else{
-                $paxType = "INF";
-            }
-            validate_required('paxType', $paxType);
-        }
-        
-        $dob = $dob_year . '-' . str_pad($dob_month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($dob_day, 2, '0', STR_PAD_LEFT);
-
-        $idissueDate = $id_issue_year . '-' . str_pad($id_issue_month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($id_issue_day, 2, '0', STR_PAD_LEFT);
-
-        $idexpireDate = $id_expire_year . '-' . str_pad($id_expire_month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($id_expire_day, 2, '0', STR_PAD_LEFT);
-        $seatref = "N";
-
-        // Prepare and bind
-        $stmt = $mysqli->prepare("INSERT INTO wpk4_backend_travel_booking_pax (traceId, purchaseid, salutation, fname, lname, email, gender, dob, paxType, mobile_no, passportNumber, passportDOI, passportDOE, passportIssuedCountry, seatPref, addressName, street, AddresState, postalCode, countryName, countryCode, city,passengerNationality) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)");
-
-        $stmt->bind_param("sssssssssssssssssssssss", 
-            $traceId, 
-            $purchaseId, 
-            $title, 
-            $first_name, 
-            $last_name, 
-            $emailaddress, 
-            $gender, 
-            $dob,
-            $paxType, 
-            $phonenumber, 
-            $id_number, 
-            $idissueDate, 
-            $idexpireDate, 
-            $country_issue, 
-            $seatref,
-            $Address, 
-            $street, 
-            $State, 
-            $zipcode, 
-            $country, 
-            $country_code, 
-            $city,
-            $country_birth
-        );
-
-        // Execute the statement
-        if ($stmt->execute()) {
-            echo "New record created successfully";
-        } else {
-            echo "Error: " . $stmt->error;
-        }
-
-        // Close the statement and connection
+        // Close the statement
         $stmt->close();
-        $mysqli->close();
-
-        $storequery = $mysqli->prepare("SELECT * FROM `wpk4_backend_travel_booking_pax`");
+        
+        // Fetch all passengers for the traceId
+        $storequery = $mysqli->prepare("SELECT * FROM `wpk4_backend_travel_booking_pax` WHERE traceId = ?");
+        $storequery->bind_param("s", $traceId);
         $storequery->execute();
         $result = $storequery->get_result();
 
@@ -442,77 +432,71 @@ $formData = $_SESSION['formData'];
         while ($row = $result->fetch_assoc()) {
             $results[] = $row;
         }
-        // Close the statement
-        $storequery->close();
-        // Close the connection
-        $mysqli->close();
-        // var_dump($results);
-        foreach($results as $result){
-            if($results['traceId'] == $traceId){
-                $passengers = [
-                    "title"=> $result['salutation'],
-                    "firstName"=>$result['fname'],
-                    "lastName"=> $result['lname'],
-                    "email"=> $result['email'],
-                    "dob"=> $result['dob']."T15=>43=>15.677Z",
-                    "genderType"=> $result['gender'],
-                    "areaCode"=> "",
-                    "ffNumber"=> "",
-                    "paxType"=> $result['paxType'],
-                    "mobile"=> $result['mobile_no'],
-                    "passportNumber"=> $result['passportNumber'],
-                    "passengerNationality"=> $result['passengerNationality'],
-                    "passportDOI"=> $result['passportDOI']."T15=>43=>15.677Z",
-                    "passportDOE"=> $result['passportDOE']."T15=>43=>15.677Z",
-                    "passportIssuedCountry"=> $result['passportIssuedCountry'],
-                    "seatPref"=> $result['seatPref'],
-                    "mealPref"=> "",
-                    "ktn"=> "",
-                    "redressNo"=> ""
-                ];
-            }
-        }
-        // Check for errors before processing
-        if (empty($errors)) {
-            // Process form data
-            $data = [
-                "traceId"=> $traceId,
-                "gstDetails"=> [
-                    "address1"=> "",
-                    "address2"=> "",
-                    "city"=> "",
-                    "state"=> "",
-                    "pinCode"=> "",
-                    "email"=> "",
-                    "gstNumber"=> "",
-                    "gstPhoneNo"=> "",
-                    "gstCompanyName"=> ""
-                ],
-                "purchaseIds"=> [
-                    $purchaseId
-                ],
-                "passengers"=> [
-                    $passengers
-                ],
-                "address"=> [
-                    "addressName"=> $Address,
-                    "street"=> $street,
-                    "state"=> $State,
-                    "postalCode"=> $zipcode,
-                    "countryName"=> $country,
-                    "countryCode"=> "+".$country_code,
-                    "city"=> $city
-                ]
-            ];
-                        // var_dump($data);
-                    } else {
-                        // Display errors
-                        foreach ($errors as $field => $error) {
-                            echo "<p>$error</p>";
-                        }
-                    }
-                }
 
+        $passengers = [];
+        foreach ($results as $result) {
+            $passengers[] = [
+                "title" => $result['salutation'],
+                "firstName" => $result['fname'],
+                "lastName" => $result['lname'],
+                "email" => $result['email'],
+                "dob" => $result['dob'] . "T15:43:15.677Z",
+                "genderType" => $result['gender'],
+                "areaCode" => "",
+                "ffNumber" => "",
+                "paxType" => $result['paxType'],
+                "mobile" => $result['mobile_no'],
+                "passportNumber" => $result['passportNumber'],
+                "passengerNationality" => $result['passengerNationality'],
+                "passportDOI" => $result['passportDOI'] . "T15:43:15.677Z",
+                "passportDOE" => $result['passportDOE'] . "T15:43:15.677Z",
+                "passportIssuedCountry" => $result['passportIssuedCountry'],
+                "seatPref" => $result['seatPref'],
+                "mealPref" => "",
+                "ktn" => "",
+                "redressNo" => ""
+            ];
+        }
+
+        // Prepare final data
+        $data = [
+            "traceId" => $traceId,
+            "gstDetails" => [
+                "address1" => "",
+                "address2" => "",
+                "city" => "",
+                "state" => "",
+                "pinCode" => "",
+                "email" => "",
+                "gstNumber" => "",
+                "gstPhoneNo" => "",
+                "gstCompanyName" => ""
+            ],
+            "purchaseIds" => [
+                $purchaseId
+            ],
+            "passengers" => $passengers,
+            "address" => [
+                "addressName" => $address, // Assuming all passengers have the same address
+                "street" => $street,
+                "state" => $state,
+                "postalCode" => $zipcode,
+                "countryName" => $country,
+                "countryCode" => "+" . $country_code,
+                "city" => $city
+            ]
+        ];
+        var_dump($data);
+    } else {
+        // Display errors
+        foreach ($errors as $field => $error) {
+            echo "<p>$error</p>";
+        }
+    }
+
+    // Close the connection
+    $mysqli->close();
+}
         // var_dump($formData);
         $passengerTypes = array_merge(
             array_fill(0, $formData['adultsCount'], 'Adult'),
@@ -526,712 +510,717 @@ $formData = $_SESSION['formData'];
 
     <form action="" method="post" id="passenger-form">
         <div class="passenger-form mb-3">
-                <?php
-                for ($i = 0; $i < $formData['total']; $i++):
-                    $passengerType = $passengerTypes[$i];
-                ?>
-                <div class="outer-div">
-                    <div class="middle-div">
-                        <div class="info-div">
-                            <?php echo ($i + 1) . ". " . $passengerType; ?>
-                            <i class="fas fa-info-circle info-icon"></i>
-                            <input type="text" value="<?php echo $passengerType; ?>" hidden name="paxType">
-                        </div>
-                        <div class="inner-div">
-                            <div class="form-row">
-                                <label for="title-<?php echo $i; ?>">Title*</label>
-                                <select id="title-<?php echo $i; ?>" name="title" required>
-                                    <option value="Mr">Mr.</option>
-                                    <option value="Mrs">Mrs.</option>
-                                    <option value="Miss">Miss</option>
-                                    <option value="Ms">Ms.</option>
-                                </select>
-                                <div id="title-<?php echo $i; ?>-error" class="error-message">Title is required.</div>
-                            </div>
-                            <div class="form-row">
-                                <label for="first-name-<?php echo $i; ?>">First name*</label>
-                                <input type="text" id="first-name-<?php echo $i; ?>" placeholder="Enter first name" name="first-name" required>
-                                <div id="first-name-<?php echo $i; ?>-error" class="error-message">First name is required.</div>
-                            </div>
-                            <div class="form-row">
-                                <label for="last-name-<?php echo $i; ?>">Last name*</label>
-                                <input type="text" id="last-name-<?php echo $i; ?>" placeholder="Enter last name" name="last-name" required>
-                                <div id="last-name-<?php echo $i; ?>-error" class="error-message">Last name is required.</div>
-                            </div>
-                        </div>
-                        <div class="dob-row">
-                            <label for="dob-<?php echo $i; ?>">Date of birth*</label>
-                            <select id="dob-day-<?php echo $i; ?>" name="dob-day" class="dob-field" required>
-                                <option value="" selected disabled hidden>DD</option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5">5</option>
-                                <option value="6">6</option>
-                                <option value="7">7</option>
-                                <option value="8">8</option>
-                                <option value="9">9</option>
-                                <option value="10">10</option>
-                                <option value="11">11</option>
-                                <option value="12">12</option>
-                                <option value="13">13</option>
-                                <option value="14">14</option>
-                                <option value="15">15</option>
-                                <option value="16">16</option>
-                                <option value="17">17</option>
-                                <option value="18">18</option>
-                                <option value="19">19</option>
-                                <option value="20">20</option>
-                                <option value="21">21</option>
-                                <option value="22">22</option>
-                                <option value="23">23</option>
-                                <option value="24">24</option>
-                                <option value="25">25</option>
-                                <option value="26">26</option>
-                                <option value="27">27</option>
-                                <option value="28">28</option>
-                                <option value="29">29</option>
-                                <option value="30">30</option>
-                                <option value="31">31</option>
-                            </select>
-                            <select id="dob-month-<?php echo $i; ?>" name="dob-month" class="dob-field" required>
-                                <option value="" selected disabled hidden>MM</option>
-                                <option value="1">January</option>
-                                <option value="2">February</option>
-                                <option value="3">March</option>
-                                <option value="4">April</option>
-                                <option value="5">May</option>
-                                <option value="6">June</option>
-                                <option value="7">July</option>
-                                <option value="8">August</option>
-                                <option value="9">September</option>
-                                <option value="10">October</option>
-                                <option value="11">November</option>
-                                <option value="12">December</option>
-                            </select>
-                            <select id="dob-year-<?php echo $i; ?>" name="dob-year" class="dob-field" required>
-                                <option value="" selected disabled hidden>YYYY</option>
-                            </select>
-                            <div id="dob-<?php echo $i; ?>-error" class="error-message">Complete date of birth is required.</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-6">
-                                <label for="id-method-<?php echo $i; ?>">Identification method</label>
-                                <select id="id-method-<?php echo $i; ?>" name="id-method" required>
-                                    <option value="" selected disabled hidden>Select</option>
-                                    <option value="Passport">Passport</option>
-                                </select>
-                                <div id="id-method-<?php echo $i; ?>-error" class="error-message">Identification method is required.</div>
-                            </div>
-                            <div class="col-6">
-                                <div class="row">
-                                    <div class="col-6">
-                                        <label style="display: flex;align-items: end;" for="gender-<?php echo $i; ?>">Gender</label>
-                                        <select id="gender-<?php echo $i; ?>" name="gender" required>
-                                            <option value="" selected disabled hidden>Select Gender</option>
-                                            <option value="M">Male</option>
-                                            <option value="F">Female</option>
-                                        </select>
-                                        <div id="gender-<?php echo $i; ?>-error" class="error-message">Gender is required.</div>
-                                    </div>
-                                    <div class="col-6">
-                                        <label style="display: flex;align-items: end;" for="id-number-<?php echo $i; ?>">Identification Number</label>
-                                        <input type="text" placeholder="Enter passport number" id="id-number-<?php echo $i; ?>" name="id-number" required>
-                                        <div id="id-number-<?php echo $i; ?>-error" class="error-message">Identification number is required.</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="row">
-                                    <label for="id-expire-day-<?php echo $i; ?>" style="flex-basis: 100%; margin-bottom: 5px;">Date of Issue</label>
-                                    <div class="col-4">
-                                        <select id="id-issue-day-<?php echo $i; ?>" name="id-issue-day" class="dob-field" required>
-                                            <option value="" selected disabled hidden>DD</option>
-                                            <option value="1">1</option>
-                                            <option value="2">2</option>
-                                            <option value="3">3</option>
-                                            <option value="4">4</option>
-                                            <option value="5">5</option>
-                                            <option value="6">6</option>
-                                            <option value="7">7</option>
-                                            <option value="8">8</option>
-                                            <option value="9">9</option>
-                                            <option value="10">10</option>
-                                            <option value="11">11</option>
-                                            <option value="12">12</option>
-                                            <option value="13">13</option>
-                                            <option value="14">14</option>
-                                            <option value="15">15</option>
-                                            <option value="16">16</option>
-                                            <option value="17">17</option>
-                                            <option value="18">18</option>
-                                            <option value="19">19</option>
-                                            <option value="20">20</option>
-                                            <option value="21">21</option>
-                                            <option value="22">22</option>
-                                            <option value="23">23</option>
-                                            <option value="24">24</option>
-                                            <option value="25">25</option>
-                                            <option value="26">26</option>
-                                            <option value="27">27</option>
-                                            <option value="28">28</option>
-                                            <option value="29">29</option>
-                                            <option value="30">30</option>
-                                            <option value="31">31</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-4">
-                                        <select id="id-issue-month-<?php echo $i; ?>" name="id-issue-month" class="dob-field" required>
-                                            <option value="" selected disabled hidden>MM</option>
-                                            <option value="1">January</option>
-                                            <option value="2">February</option>
-                                            <option value="3">March</option>
-                                            <option value="4">April</option>
-                                            <option value="5">May</option>
-                                            <option value="6">June</option>
-                                            <option value="7">July</option>
-                                            <option value="8">August</option>
-                                            <option value="9">September</option>
-                                            <option value="10">October</option>
-                                            <option value="11">November</option>
-                                            <option value="12">December</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-4">
-                                        <select id="id-issue-year-<?php echo $i; ?>" name="id-issue-year" class="dob-field" required>
-                                            <option value="">YYYY</option>
-                                        </select>
-                                    </div>
-                                    <div id="id-expire-<?php echo $i; ?>-error" class="error-message">Complete ID expiration date is required.</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                            <div class="row">
-                                    <label for="id-expire-day-<?php echo $i; ?>" style="flex-basis: 100%; margin-bottom: 5px;">Date of expire</label>
-                                    <div class="col-4">
-                                        <select id="id-expire-day-<?php echo $i; ?>" name="id-expire-day" class="dob-field" required>
-                                            <option value="" selected disabled hidden>DD</option>
-                                            <option value="1">1</option>
-                                            <option value="2">2</option>
-                                            <option value="3">3</option>
-                                            <option value="4">4</option>
-                                            <option value="5">5</option>
-                                            <option value="6">6</option>
-                                            <option value="7">7</option>
-                                            <option value="8">8</option>
-                                            <option value="9">9</option>
-                                            <option value="10">10</option>
-                                            <option value="11">11</option>
-                                            <option value="12">12</option>
-                                            <option value="13">13</option>
-                                            <option value="14">14</option>
-                                            <option value="15">15</option>
-                                            <option value="16">16</option>
-                                            <option value="17">17</option>
-                                            <option value="18">18</option>
-                                            <option value="19">19</option>
-                                            <option value="20">20</option>
-                                            <option value="21">21</option>
-                                            <option value="22">22</option>
-                                            <option value="23">23</option>
-                                            <option value="24">24</option>
-                                            <option value="25">25</option>
-                                            <option value="26">26</option>
-                                            <option value="27">27</option>
-                                            <option value="28">28</option>
-                                            <option value="29">29</option>
-                                            <option value="30">30</option>
-                                            <option value="31">31</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-4"> 
-                                        <select id="id-expire-month-<?php echo $i; ?>" name="id-expire-month" class="dob-field" required>
-                                            <option value="" selected disabled hidden>MM</option>
-                                            <option value="1">January</option>
-                                            <option value="2">February</option>
-                                            <option value="3">March</option>
-                                            <option value="4">April</option>
-                                            <option value="5">May</option>
-                                            <option value="6">June</option>
-                                            <option value="7">July</option>
-                                            <option value="8">August</option>
-                                            <option value="9">September</option>
-                                            <option value="10">October</option>
-                                            <option value="11">November</option>
-                                            <option value="12">December</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-4">
-                                        <select id="id-expire-year-<?php echo $i; ?>" name="id-expire-year" class="dob-field" required>
-                                            <option value="">YYYY</option>
-                                        </select>
-                                    </div>
-                                    <div id="id-expire-<?php echo $i; ?>-error" class="error-message">Complete ID expiration date is required.</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div style="display: flex;">
-                            <div class="form-row">
-                                <label for="country-issue-<?php echo $i; ?>">Country of issue</label>
-                                <select id="country-issue-<?php echo $i; ?>" name="country-issue" required>
-                                    <option value="" selected disabled hidden>Select country</option>
-                                    <option value="AF">Afghanistan</option>
-                                    <option value="AL">Albania</option>
-                                    <option value="DZ">Algeria</option>
-                                    <option value="AS">American Samoa</option>
-                                    <option value="AD">Andorra</option>
-                                    <option value="AO">Angola</option>
-                                    <option value="AI">Anguilla</option>
-                                    <option value="AQ">Antarctica</option>
-                                    <option value="AG">Antigua and Barbuda</option>
-                                    <option value="AR">Argentina</option>
-                                    <option value="AM">Armenia</option>
-                                    <option value="AW">Aruba</option>
-                                    <option value="AU">Australia</option>
-                                    <option value="AT">Austria</option>
-                                    <option value="AZ">Azerbaijan</option>
-                                    <option value="BS">Bahamas</option>
-                                    <option value="BH">Bahrain</option>
-                                    <option value="BD">Bangladesh</option>
-                                    <option value="BB">Barbados</option>
-                                    <option value="BY">Belarus</option>
-                                    <option value="BE">Belgium</option>
-                                    <option value="BZ">Belize</option>
-                                    <option value="BJ">Benin</option>
-                                    <option value="BM">Bermuda</option>
-                                    <option value="BT">Bhutan</option>
-                                    <option value="BO">Bolivia</option>
-                                    <option value="BA">Bosnia and Herzegovina</option>
-                                    <option value="BW">Botswana</option>
-                                    <option value="BR">Brazil</option>
-                                    <option value="BN">Brunei Darussalam</option>
-                                    <option value="BG">Bulgaria</option>
-                                    <option value="BF">Burkina Faso</option>
-                                    <option value="BI">Burundi</option>
-                                    <option value="CV">Cabo Verde</option>
-                                    <option value="KH">Cambodia</option>
-                                    <option value="CM">Cameroon</option>
-                                    <option value="CA">Canada</option>
-                                    <option value="KY">Cayman Islands</option>
-                                    <option value="CF">Central African Republic</option>
-                                    <option value="TD">Chad</option>
-                                    <option value="CL">Chile</option>
-                                    <option value="CN">China</option>
-                                    <option value="CO">Colombia</option>
-                                    <option value="KM">Comoros</option>
-                                    <option value="CG">Congo</option>
-                                    <option value="CD">Congo, Democratic Republic of the</option>
-                                    <option value="CR">Costa Rica</option>
-                                    <option value="CI">Côte d'Ivoire</option>
-                                    <option value="HR">Croatia</option>
-                                    <option value="CU">Cuba</option>
-                                    <option value="CY">Cyprus</option>
-                                    <option value="CZ">Czech Republic</option>
-                                    <option value="DK">Denmark</option>
-                                    <option value="DJ">Djibouti</option>
-                                    <option value="DM">Dominica</option>
-                                    <option value="DO">Dominican Republic</option>
-                                    <option value="EC">Ecuador</option>
-                                    <option value="EG">Egypt</option>
-                                    <option value="SV">El Salvador</option>
-                                    <option value="GQ">Equatorial Guinea</option>
-                                    <option value="ER">Eritrea</option>
-                                    <option value="EE">Estonia</option>
-                                    <option value="SZ">Eswatini</option>
-                                    <option value="ET">Ethiopia</option>
-                                    <option value="FJ">Fiji</option>
-                                    <option value="FI">Finland</option>
-                                    <option value="FR">France</option>
-                                    <option value="GA">Gabon</option>
-                                    <option value="GM">Gambia</option>
-                                    <option value="GE">Georgia</option>
-                                    <option value="DE">Germany</option>
-                                    <option value="GH">Ghana</option>
-                                    <option value="GR">Greece</option>
-                                    <option value="GD">Grenada</option>
-                                    <option value="GU">Guam</option>
-                                    <option value="GT">Guatemala</option>
-                                    <option value="GN">Guinea</option>
-                                    <option value="GW">Guinea-Bissau</option>
-                                    <option value="GY">Guyana</option>
-                                    <option value="HT">Haiti</option>
-                                    <option value="HN">Honduras</option>
-                                    <option value="HU">Hungary</option>
-                                    <option value="IS">Iceland</option>
-                                    <option value="IN">India</option>
-                                    <option value="ID">Indonesia</option>
-                                    <option value="IR">Iran, Islamic Republic of</option>
-                                    <option value="IQ">Iraq</option>
-                                    <option value="IE">Ireland</option>
-                                    <option value="IL">Israel</option>
-                                    <option value="IT">Italy</option>
-                                    <option value="JM">Jamaica</option>
-                                    <option value="JP">Japan</option>
-                                    <option value="JO">Jordan</option>
-                                    <option value="KZ">Kazakhstan</option>
-                                    <option value="KE">Kenya</option>
-                                    <option value="KI">Kiribati</option>
-                                    <option value="KP">Korea, Democratic People's Republic of</option>
-                                    <option value="KR">Korea, Republic of</option>
-                                    <option value="KW">Kuwait</option>
-                                    <option value="KG">Kyrgyzstan</option>
-                                    <option value="LA">Lao People's Democratic Republic</option>
-                                    <option value="LV">Latvia</option>
-                                    <option value="LB">Lebanon</option>
-                                    <option value="LS">Lesotho</option>
-                                    <option value="LR">Liberia</option>
-                                    <option value="LY">Libya</option>
-                                    <option value="LI">Liechtenstein</option>
-                                    <option value="LT">Lithuania</option>
-                                    <option value="LU">Luxembourg</option>
-                                    <option value="MG">Madagascar</option>
-                                    <option value="MW">Malawi</option>
-                                    <option value="MY">Malaysia</option>
-                                    <option value="MV">Maldives</option>
-                                    <option value="ML">Mali</option>
-                                    <option value="MT">Malta</option>
-                                    <option value="MH">Marshall Islands</option>
-                                    <option value="MR">Mauritania</option>
-                                    <option value="MU">Mauritius</option>
-                                    <option value="MX">Mexico</option>
-                                    <option value="FM">Micronesia (Federated States of)</option>
-                                    <option value="MD">Moldova, Republic of</option>
-                                    <option value="MC">Monaco</option>
-                                    <option value="MN">Mongolia</option>
-                                    <option value="ME">Montenegro</option>
-                                    <option value="MA">Morocco</option>
-                                    <option value="MZ">Mozambique</option>
-                                    <option value="MM">Myanmar</option>
-                                    <option value="NA">Namibia</option>
-                                    <option value="NR">Nauru</option>
-                                    <option value="NP">Nepal</option>
-                                    <option value="NL">Netherlands</option>
-                                    <option value="NZ">New Zealand</option>
-                                    <option value="NI">Nicaragua</option>
-                                    <option value="NE">Niger</option>
-                                    <option value="NG">Nigeria</option>
-                                    <option value="MK">North Macedonia</option>
-                                    <option value="NO">Norway</option>
-                                    <option value="OM">Oman</option>
-                                    <option value="PK">Pakistan</option>
-                                    <option value="PW">Palau</option>
-                                    <option value="PA">Panama</option>
-                                    <option value="PG">Papua New Guinea</option>
-                                    <option value="PY">Paraguay</option>
-                                    <option value="PE">Peru</option>
-                                    <option value="PH">Philippines</option>
-                                    <option value="PL">Poland</option>
-                                    <option value="PT">Portugal</option>
-                                    <option value="QA">Qatar</option>
-                                    <option value="RO">Romania</option>
-                                    <option value="RU">Russian Federation</option>
-                                    <option value="RW">Rwanda</option>
-                                    <option value="KN">Saint Kitts and Nevis</option>
-                                    <option value="LC">Saint Lucia</option>
-                                    <option value="VC">Saint Vincent and the Grenadines</option>
-                                    <option value="WS">Samoa</option>
-                                    <option value="SM">San Marino</option>
-                                    <option value="ST">Sao Tome and Principe</option>
-                                    <option value="SA">Saudi Arabia</option>
-                                    <option value="SN">Senegal</option>
-                                    <option value="RS">Serbia</option>
-                                    <option value="SC">Seychelles</option>
-                                    <option value="SL">Sierra Leone</option>
-                                    <option value="SG">Singapore</option>
-                                    <option value="SK">Slovakia</option>
-                                    <option value="SI">Slovenia</option>
-                                    <option value="SB">Solomon Islands</option>
-                                    <option value="SO">Somalia</option>
-                                    <option value="ZA">South Africa</option>
-                                    <option value="SS">South Sudan</option>
-                                    <option value="ES">Spain</option>
-                                    <option value="LK">Sri Lanka</option>
-                                    <option value="SD">Sudan</option>
-                                    <option value="SR">Suriname</option>
-                                    <option value="SE">Sweden</option>
-                                    <option value="CH">Switzerland</option>
-                                    <option value="SY">Syrian Arab Republic</option>
-                                    <option value="TW">Taiwan, Province of China</option>
-                                    <option value="TJ">Tajikistan</option>
-                                    <option value="TZ">Tanzania, United Republic of</option>
-                                    <option value="TH">Thailand</option>
-                                    <option value="TL">Timor-Leste</option>
-                                    <option value="TG">Togo</option>
-                                    <option value="TO">Tonga</option>
-                                    <option value="TT">Trinidad and Tobago</option>
-                                    <option value="TN">Tunisia</option>
-                                    <option value="TR">Turkey</option>
-                                    <option value="TM">Turkmenistan</option>
-                                    <option value="TV">Tuvalu</option>
-                                    <option value="UG">Uganda</option>
-                                    <option value="UA">Ukraine</option>
-                                    <option value="AE">United Arab Emirates</option>
-                                    <option value="GB">United Kingdom</option>
-                                    <option value="US">United States</option>
-                                    <option value="UY">Uruguay</option>
-                                    <option value="UZ">Uzbekistan</option>
-                                    <option value="VU">Vanuatu</option>
-                                    <option value="VE">Venezuela</option>
-                                    <option value="VN">Viet Nam</option>
-                                    <option value="YE">Yemen</option>
-                                    <option value="ZM">Zambia</option>
-                                    <option value="ZW">Zimbabwe</option>
-                                </select>
-                                <div id="country-issue-<?php echo $i; ?>-error" class="error-message">Country of issue is required.</div>
-                            </div>
-                            <div class="form-row">
-                                <label for="country-birth-<?php echo $i; ?>">Country of birth</label>
-                                <select id="country-birth-<?php echo $i; ?>" name="country-birth" required>
-                                    <option value="" selected disabled hidden>Select country</option>
-                                    <option value="AF">Afghanistan</option>
-                                    <option value="AL">Albania</option>
-                                    <option value="DZ">Algeria</option>
-                                    <option value="AS">American Samoa</option>
-                                    <option value="AD">Andorra</option>
-                                    <option value="AO">Angola</option>
-                                    <option value="AI">Anguilla</option>
-                                    <option value="AQ">Antarctica</option>
-                                    <option value="AG">Antigua and Barbuda</option>
-                                    <option value="AR">Argentina</option>
-                                    <option value="AM">Armenia</option>
-                                    <option value="AW">Aruba</option>
-                                    <option value="AU">Australia</option>
-                                    <option value="AT">Austria</option>
-                                    <option value="AZ">Azerbaijan</option>
-                                    <option value="BS">Bahamas</option>
-                                    <option value="BH">Bahrain</option>
-                                    <option value="BD">Bangladesh</option>
-                                    <option value="BB">Barbados</option>
-                                    <option value="BY">Belarus</option>
-                                    <option value="BE">Belgium</option>
-                                    <option value="BZ">Belize</option>
-                                    <option value="BJ">Benin</option>
-                                    <option value="BM">Bermuda</option>
-                                    <option value="BT">Bhutan</option>
-                                    <option value="BO">Bolivia</option>
-                                    <option value="BA">Bosnia and Herzegovina</option>
-                                    <option value="BW">Botswana</option>
-                                    <option value="BR">Brazil</option>
-                                    <option value="BN">Brunei Darussalam</option>
-                                    <option value="BG">Bulgaria</option>
-                                    <option value="BF">Burkina Faso</option>
-                                    <option value="BI">Burundi</option>
-                                    <option value="CV">Cabo Verde</option>
-                                    <option value="KH">Cambodia</option>
-                                    <option value="CM">Cameroon</option>
-                                    <option value="CA">Canada</option>
-                                    <option value="KY">Cayman Islands</option>
-                                    <option value="CF">Central African Republic</option>
-                                    <option value="TD">Chad</option>
-                                    <option value="CL">Chile</option>
-                                    <option value="CN">China</option>
-                                    <option value="CO">Colombia</option>
-                                    <option value="KM">Comoros</option>
-                                    <option value="CG">Congo</option>
-                                    <option value="CD">Congo, Democratic Republic of the</option>
-                                    <option value="CR">Costa Rica</option>
-                                    <option value="CI">Côte d'Ivoire</option>
-                                    <option value="HR">Croatia</option>
-                                    <option value="CU">Cuba</option>
-                                    <option value="CY">Cyprus</option>
-                                    <option value="CZ">Czech Republic</option>
-                                    <option value="DK">Denmark</option>
-                                    <option value="DJ">Djibouti</option>
-                                    <option value="DM">Dominica</option>
-                                    <option value="DO">Dominican Republic</option>
-                                    <option value="EC">Ecuador</option>
-                                    <option value="EG">Egypt</option>
-                                    <option value="SV">El Salvador</option>
-                                    <option value="GQ">Equatorial Guinea</option>
-                                    <option value="ER">Eritrea</option>
-                                    <option value="EE">Estonia</option>
-                                    <option value="SZ">Eswatini</option>
-                                    <option value="ET">Ethiopia</option>
-                                    <option value="FJ">Fiji</option>
-                                    <option value="FI">Finland</option>
-                                    <option value="FR">France</option>
-                                    <option value="GA">Gabon</option>
-                                    <option value="GM">Gambia</option>
-                                    <option value="GE">Georgia</option>
-                                    <option value="DE">Germany</option>
-                                    <option value="GH">Ghana</option>
-                                    <option value="GR">Greece</option>
-                                    <option value="GD">Grenada</option>
-                                    <option value="GU">Guam</option>
-                                    <option value="GT">Guatemala</option>
-                                    <option value="GN">Guinea</option>
-                                    <option value="GW">Guinea-Bissau</option>
-                                    <option value="GY">Guyana</option>
-                                    <option value="HT">Haiti</option>
-                                    <option value="HN">Honduras</option>
-                                    <option value="HU">Hungary</option>
-                                    <option value="IS">Iceland</option>
-                                    <option value="IN">India</option>
-                                    <option value="ID">Indonesia</option>
-                                    <option value="IR">Iran, Islamic Republic of</option>
-                                    <option value="IQ">Iraq</option>
-                                    <option value="IE">Ireland</option>
-                                    <option value="IL">Israel</option>
-                                    <option value="IT">Italy</option>
-                                    <option value="JM">Jamaica</option>
-                                    <option value="JP">Japan</option>
-                                    <option value="JO">Jordan</option>
-                                    <option value="KZ">Kazakhstan</option>
-                                    <option value="KE">Kenya</option>
-                                    <option value="KI">Kiribati</option>
-                                    <option value="KP">Korea, Democratic People's Republic of</option>
-                                    <option value="KR">Korea, Republic of</option>
-                                    <option value="KW">Kuwait</option>
-                                    <option value="KG">Kyrgyzstan</option>
-                                    <option value="LA">Lao People's Democratic Republic</option>
-                                    <option value="LV">Latvia</option>
-                                    <option value="LB">Lebanon</option>
-                                    <option value="LS">Lesotho</option>
-                                    <option value="LR">Liberia</option>
-                                    <option value="LY">Libya</option>
-                                    <option value="LI">Liechtenstein</option>
-                                    <option value="LT">Lithuania</option>
-                                    <option value="LU">Luxembourg</option>
-                                    <option value="MG">Madagascar</option>
-                                    <option value="MW">Malawi</option>
-                                    <option value="MY">Malaysia</option>
-                                    <option value="MV">Maldives</option>
-                                    <option value="ML">Mali</option>
-                                    <option value="MT">Malta</option>
-                                    <option value="MH">Marshall Islands</option>
-                                    <option value="MR">Mauritania</option>
-                                    <option value="MU">Mauritius</option>
-                                    <option value="MX">Mexico</option>
-                                    <option value="FM">Micronesia (Federated States of)</option>
-                                    <option value="MD">Moldova, Republic of</option>
-                                    <option value="MC">Monaco</option>
-                                    <option value="MN">Mongolia</option>
-                                    <option value="ME">Montenegro</option>
-                                    <option value="MA">Morocco</option>
-                                    <option value="MZ">Mozambique</option>
-                                    <option value="MM">Myanmar</option>
-                                    <option value="NA">Namibia</option>
-                                    <option value="NR">Nauru</option>
-                                    <option value="NP">Nepal</option>
-                                    <option value="NL">Netherlands</option>
-                                    <option value="NZ">New Zealand</option>
-                                    <option value="NI">Nicaragua</option>
-                                    <option value="NE">Niger</option>
-                                    <option value="NG">Nigeria</option>
-                                    <option value="MK">North Macedonia</option>
-                                    <option value="NO">Norway</option>
-                                    <option value="OM">Oman</option>
-                                    <option value="PK">Pakistan</option>
-                                    <option value="PW">Palau</option>
-                                    <option value="PA">Panama</option>
-                                    <option value="PG">Papua New Guinea</option>
-                                    <option value="PY">Paraguay</option>
-                                    <option value="PE">Peru</option>
-                                    <option value="PH">Philippines</option>
-                                    <option value="PL">Poland</option>
-                                    <option value="PT">Portugal</option>
-                                    <option value="QA">Qatar</option>
-                                    <option value="RO">Romania</option>
-                                    <option value="RU">Russian Federation</option>
-                                    <option value="RW">Rwanda</option>
-                                    <option value="KN">Saint Kitts and Nevis</option>
-                                    <option value="LC">Saint Lucia</option>
-                                    <option value="VC">Saint Vincent and the Grenadines</option>
-                                    <option value="WS">Samoa</option>
-                                    <option value="SM">San Marino</option>
-                                    <option value="ST">Sao Tome and Principe</option>
-                                    <option value="SA">Saudi Arabia</option>
-                                    <option value="SN">Senegal</option>
-                                    <option value="RS">Serbia</option>
-                                    <option value="SC">Seychelles</option>
-                                    <option value="SL">Sierra Leone</option>
-                                    <option value="SG">Singapore</option>
-                                    <option value="SK">Slovakia</option>
-                                    <option value="SI">Slovenia</option>
-                                    <option value="SB">Solomon Islands</option>
-                                    <option value="SO">Somalia</option>
-                                    <option value="ZA">South Africa</option>
-                                    <option value="SS">South Sudan</option>
-                                    <option value="ES">Spain</option>
-                                    <option value="LK">Sri Lanka</option>
-                                    <option value="SD">Sudan</option>
-                                    <option value="SR">Suriname</option>
-                                    <option value="SE">Sweden</option>
-                                    <option value="CH">Switzerland</option>
-                                    <option value="SY">Syrian Arab Republic</option>
-                                    <option value="TW">Taiwan, Province of China</option>
-                                    <option value="TJ">Tajikistan</option>
-                                    <option value="TZ">Tanzania, United Republic of</option>
-                                    <option value="TH">Thailand</option>
-                                    <option value="TL">Timor-Leste</option>
-                                    <option value="TG">Togo</option>
-                                    <option value="TO">Tonga</option>
-                                    <option value="TT">Trinidad and Tobago</option>
-                                    <option value="TN">Tunisia</option>
-                                    <option value="TR">Turkey</option>
-                                    <option value="TM">Turkmenistan</option>
-                                    <option value="TV">Tuvalu</option>
-                                    <option value="UG">Uganda</option>
-                                    <option value="UA">Ukraine</option>
-                                    <option value="AE">United Arab Emirates</option>
-                                    <option value="GB">United Kingdom</option>
-                                    <option value="US">United States</option>
-                                    <option value="UY">Uruguay</option>
-                                    <option value="UZ">Uzbekistan</option>
-                                    <option value="VU">Vanuatu</option>
-                                    <option value="VE">Venezuela</option>
-                                    <option value="VN">Viet Nam</option>
-                                    <option value="YE">Yemen</option>
-                                    <option value="ZM">Zambia</option>
-                                    <option value="ZW">Zimbabwe</option>
-                                </select>
-                                <div id="country-birth-<?php echo $i; ?>-error" class="error-message">Country of birth is required.</div>
-                            </div>
-                        </div>
+        <?php
+for ($i = 0; $i < $formData['total']; $i++):
+    $passengerType = $passengerTypes[$i];
+?>
+<div class="outer-div">
+    <div class="middle-div">
+        <div class="info-div">
+            <?php echo ($i + 1) . ". " . $passengerType; ?>
+            <i class="fas fa-info-circle info-icon"></i>
+            <input type="text" value="<?php echo $passengerType; ?>" hidden name="paxType[]">
+        </div>
+        <div class="inner-div">
+            <div class="form-row">
+                <label for="title-<?php echo $i; ?>">Title*</label>
+                <select id="title-<?php echo $i; ?>" name="title[]" required>
+                    <option value="Mr">Mr.</option>
+                    <option value="Mrs">Mrs.</option>
+                    <option value="Miss">Miss</option>
+                    <option value="Ms">Ms.</option>
+                </select>
+                <div id="title-<?php echo $i; ?>-error" class="error-message">Title is required.</div>
+            </div>
+            <div class="form-row">
+                <label for="first-name-<?php echo $i; ?>">First name*</label>
+                <input type="text" id="first-name-<?php echo $i; ?>" placeholder="Enter first name" name="first-name[]" required>
+                <div id="first-name-<?php echo $i; ?>-error" class="error-message">First name is required.</div>
+            </div>
+            <div class="form-row">
+                <label for="last-name-<?php echo $i; ?>">Last name*</label>
+                <input type="text" id="last-name-<?php echo $i; ?>" placeholder="Enter last name" name="last-name[]" required>
+                <div id="last-name-<?php echo $i; ?>-error" class="error-message">Last name is required.</div>
+            </div>
+        </div>
+        <div class="dob-row">
+            <label for="dob-<?php echo $i; ?>">Date of birth*</label>
+            <select id="dob-day-<?php echo $i; ?>" name="dob-day[]" class="dob-field" required>
+                <option value="" selected disabled hidden>DD</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+                <option value="17">17</option>
+                <option value="18">18</option>
+                <option value="19">19</option>
+                <option value="20">20</option>
+                <option value="21">21</option>
+                <option value="22">22</option>
+                <option value="23">23</option>
+                <option value="24">24</option>
+                <option value="25">25</option>
+                <option value="26">26</option>
+                <option value="27">27</option>
+                <option value="28">28</option>
+                <option value="29">29</option>
+                <option value="30">30</option>
+                <option value="31">31</option>
+            </select>
+            <select id="dob-month-<?php echo $i; ?>" name="dob-month[]" class="dob-field" required>
+                <option value="" selected disabled hidden>MM</option>
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+            </select>
+            <select id="dob-year-<?php echo $i; ?>" name="dob-year[]" class="dob-field" required>
+                <option value="" selected disabled hidden>YYYY</option>
+                <!-- Year options here -->
+            </select>
+            <div id="dob-<?php echo $i; ?>-error" class="error-message">Complete date of birth is required.</div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <label for="id-method-<?php echo $i; ?>">Identification method</label>
+                <select id="id-method-<?php echo $i; ?>" name="id-method[]" required>
+                    <option value="" selected disabled hidden>Select</option>
+                    <option value="Passport">Passport</option>
+                </select>
+                <div id="id-method-<?php echo $i; ?>-error" class="error-message">Identification method is required.</div>
+            </div>
+            <div class="col-6">
+                <div class="row">
+                    <div class="col-6">
+                        <label style="display: flex;align-items: end;" for="gender-<?php echo $i; ?>">Gender</label>
+                        <select id="gender-<?php echo $i; ?>" name="gender[]" required>
+                            <option value="" selected disabled hidden>Select Gender</option>
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
+                        </select>
+                        <div id="gender-<?php echo $i; ?>-error" class="error-message">Gender is required.</div>
                     </div>
-                    <div class="notice-box">
-                        <strong>Sharing of emergency contact details.</strong><br>
-                        Please confirm and provide your contact details (mobile number and/or email) if you wish the carriers operating your flights to be able to contact you due to operational disruption such as cancellations, delays and schedule changes etc.
-                        <div class="d-flex gap-5 row ms-3 my-3">
-                            <div style="border:1px solid #00000073" class="d-flex gap-3 col-6">
-                                <input type="radio" id="share-<?php echo $i; ?>" name="emergency_contact_<?php echo $i; ?>" value="share">
-                                <label for="share-<?php echo $i; ?>">I wish to share emergency contact details</label>
-                            </div>
-                            <div style="border:1px solid #00000073" class="d-flex gap-3 col-5">
-                                <input type="radio" id="no-share-<?php echo $i; ?>" name="emergency_contact_<?php echo $i; ?>" value="no-share" checked>
-                                <label for="no-share-<?php echo $i; ?>">I don't wish to share my details</label>
-                            </div>
-                        </div>
-                        <div id="contact-details-<?php echo $i; ?>" style="margin: 0 1rem;" class="hidden">
-                            <div class="form-row row d-flex">
-                                <div class="form-group col-6">
-                                    <label for="emergency_country-<?php echo $i; ?>">Country*</label>
-                                    <select id="emergency_country-<?php echo $i; ?>" name="emergency_country" required>
-                                        <option value="" selected disabled hidden>Select country</option>
-                                        <option value="+91">India</option>
-                                    </select>
-                                    <div id="emergency_country-<?php echo $i; ?>-error" class="error-message">Country is required.</div>
-                                </div>
-                                <div class="form-group col-6">
-                                    <label for="emergency_phone-number-<?php echo $i; ?>">Phone number*</label>
-                                    <input placeholder="Enter phone number" type="tel" id="emergency_phone-number-<?php echo $i; ?>" name="emergency_phone-number" required>
-                                    <div id="emergency_phone-number-<?php echo $i; ?>-error" class="error-message">Phone no is required.</div>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group" style="margin-right: 50.36666%">
-                                    <label for="emergency_email-address-<?php echo $i; ?>">E-mail address*</label>
-                                    <input type="email" id="emergency_email-address-<?php echo $i; ?>" name="emergency_email-address" placeholder="Enter email" required>
-                                    <div id="emergency_email-address-<?php echo $i; ?>-error" class="error-message">Email address is required.</div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="col-6">
+                        <label style="display: flex;align-items: end;" for="id-number-<?php echo $i; ?>">Identification Number</label>
+                        <input type="text" placeholder="Enter passport number" id="id-number-<?php echo $i; ?>" name="id-number[]" required>
+                        <div id="id-number-<?php echo $i; ?>-error" class="error-message">Identification number is required.</div>
                     </div>
                 </div>
-            <?php endfor;?>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <div class="row">
+                    <label for="id-issue-day-<?php echo $i; ?>" style="flex-basis: 100%; margin-bottom: 5px;">Date of Issue</label>
+                    <div class="col-4">
+                        <select id="id-issue-day-<?php echo $i; ?>" name="id-issue-day[]" class="dob-field" required>
+                            <option value="" selected disabled hidden>DD</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                            <option value="13">13</option>
+                            <option value="14">14</option>
+                            <option value="15">15</option>
+                            <option value="16">16</option>
+                            <option value="17">17</option>
+                            <option value="18">18</option>
+                            <option value="19">19</option>
+                            <option value="20">20</option>
+                            <option value="21">21</option>
+                            <option value="22">22</option>
+                            <option value="23">23</option>
+                            <option value="24">24</option>
+                            <option value="25">25</option>
+                            <option value="26">26</option>
+                            <option value="27">27</option>
+                            <option value="28">28</option>
+                            <option value="29">29</option>
+                            <option value="30">30</option>
+                            <option value="31">31</option>
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <select id="id-issue-month-<?php echo $i; ?>" name="id-issue-month[]" class="dob-field" required>
+                            <option value="" selected disabled hidden>MM</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <select id="id-issue-year-<?php echo $i; ?>" name="id-issue-year[]" class="dob-field" required>
+                            <option value="">YYYY</option>
+                            <!-- Year options here -->
+                        </select>
+                    </div>
+                    <div id="id-expire-<?php echo $i; ?>-error" class="error-message">Complete ID expiration date is required.</div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="row">
+                    <label for="id-expire-day-<?php echo $i; ?>" style="flex-basis: 100%; margin-bottom: 5px;">Date of expire</label>
+                    <div class="col-4">
+                        <select id="id-expire-day-<?php echo $i; ?>" name="id-expire-day[]" class="dob-field" required>
+                            <option value="" selected disabled hidden>DD</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                            <option value="13">13</option>
+                            <option value="14">14</option>
+                            <option value="15">15</option>
+                            <option value="16">16</option>
+                            <option value="17">17</option>
+                            <option value="18">18</option>
+                            <option value="19">19</option>
+                            <option value="20">20</option>
+                            <option value="21">21</option>
+                            <option value="22">22</option>
+                            <option value="23">23</option>
+                            <option value="24">24</option>
+                            <option value="25">25</option>
+                            <option value="26">26</option>
+                            <option value="27">27</option>
+                            <option value="28">28</option>
+                            <option value="29">29</option>
+                            <option value="30">30</option>
+                            <option value="31">31</option>
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <select id="id-expire-month-<?php echo $i; ?>" name="id-expire-month[]" class="dob-field" required>
+                            <option value="" selected disabled hidden>MM</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <select id="id-expire-year-<?php echo $i; ?>" name="id-expire-year[]" class="dob-field" required>
+                            <option value="">YYYY</option>
+                            <!-- Year options here -->
+                        </select>
+                    </div>
+                    <div id="id-expire-<?php echo $i; ?>-error" class="error-message">Complete ID expiration date is required.</div>
+                </div>
+            </div>
+        </div>
+        <div style="display: flex;">
+            <div class="form-row">
+                <label for="country-issue-<?php echo $i; ?>">Country of issue</label>
+                <select id="country-issue-<?php echo $i; ?>" name="country-issue[]" required>
+                    <option value="" selected disabled hidden>Select country</option>
+                    <option value="AF">Afghanistan</option>
+                    <option value="AL">Albania</option>
+                    <option value="DZ">Algeria</option>
+                    <option value="AS">American Samoa</option>
+                    <option value="AD">Andorra</option>
+                    <option value="AO">Angola</option>
+                    <option value="AI">Anguilla</option>
+                    <option value="AQ">Antarctica</option>
+                    <option value="AG">Antigua and Barbuda</option>
+                    <option value="AR">Argentina</option>
+                    <option value="AM">Armenia</option>
+                    <option value="AW">Aruba</option>
+                    <option value="AU">Australia</option>
+                    <option value="AT">Austria</option>
+                    <option value="AZ">Azerbaijan</option>
+                    <option value="BS">Bahamas</option>
+                    <option value="BH">Bahrain</option>
+                    <option value="BD">Bangladesh</option>
+                    <option value="BB">Barbados</option>
+                    <option value="BY">Belarus</option>
+                    <option value="BE">Belgium</option>
+                    <option value="BZ">Belize</option>
+                    <option value="BJ">Benin</option>
+                    <option value="BM">Bermuda</option>
+                    <option value="BT">Bhutan</option>
+                    <option value="BO">Bolivia</option>
+                    <option value="BA">Bosnia and Herzegovina</option>
+                    <option value="BW">Botswana</option>
+                    <option value="BR">Brazil</option>
+                    <option value="BN">Brunei Darussalam</option>
+                    <option value="BG">Bulgaria</option>
+                    <option value="BF">Burkina Faso</option>
+                    <option value="BI">Burundi</option>
+                    <option value="CV">Cabo Verde</option>
+                    <option value="KH">Cambodia</option>
+                    <option value="CM">Cameroon</option>
+                    <option value="CA">Canada</option>
+                    <option value="KY">Cayman Islands</option>
+                    <option value="CF">Central African Republic</option>
+                    <option value="TD">Chad</option>
+                    <option value="CL">Chile</option>
+                    <option value="CN">China</option>
+                    <option value="CO">Colombia</option>
+                    <option value="KM">Comoros</option>
+                    <option value="CG">Congo</option>
+                    <option value="CD">Congo, Democratic Republic of the</option>
+                    <option value="CR">Costa Rica</option>
+                    <option value="CI">Côte d'Ivoire</option>
+                    <option value="HR">Croatia</option>
+                    <option value="CU">Cuba</option>
+                    <option value="CY">Cyprus</option>
+                    <option value="CZ">Czech Republic</option>
+                    <option value="DK">Denmark</option>
+                    <option value="DJ">Djibouti</option>
+                    <option value="DM">Dominica</option>
+                    <option value="DO">Dominican Republic</option>
+                    <option value="EC">Ecuador</option>
+                    <option value="EG">Egypt</option>
+                    <option value="SV">El Salvador</option>
+                    <option value="GQ">Equatorial Guinea</option>
+                    <option value="ER">Eritrea</option>
+                    <option value="EE">Estonia</option>
+                    <option value="SZ">Eswatini</option>
+                    <option value="ET">Ethiopia</option>
+                    <option value="FJ">Fiji</option>
+                    <option value="FI">Finland</option>
+                    <option value="FR">France</option>
+                    <option value="GA">Gabon</option>
+                    <option value="GM">Gambia</option>
+                    <option value="GE">Georgia</option>
+                    <option value="DE">Germany</option>
+                    <option value="GH">Ghana</option>
+                    <option value="GR">Greece</option>
+                    <option value="GD">Grenada</option>
+                    <option value="GU">Guam</option>
+                    <option value="GT">Guatemala</option>
+                    <option value="GN">Guinea</option>
+                    <option value="GW">Guinea-Bissau</option>
+                    <option value="GY">Guyana</option>
+                    <option value="HT">Haiti</option>
+                    <option value="HN">Honduras</option>
+                    <option value="HU">Hungary</option>
+                    <option value="IS">Iceland</option>
+                    <option value="IN">India</option>
+                    <option value="ID">Indonesia</option>
+                    <option value="IR">Iran, Islamic Republic of</option>
+                    <option value="IQ">Iraq</option>
+                    <option value="IE">Ireland</option>
+                    <option value="IL">Israel</option>
+                    <option value="IT">Italy</option>
+                    <option value="JM">Jamaica</option>
+                    <option value="JP">Japan</option>
+                    <option value="JO">Jordan</option>
+                    <option value="KZ">Kazakhstan</option>
+                    <option value="KE">Kenya</option>
+                    <option value="KI">Kiribati</option>
+                    <option value="KP">Korea, Democratic People's Republic of</option>
+                    <option value="KR">Korea, Republic of</option>
+                    <option value="KW">Kuwait</option>
+                    <option value="KG">Kyrgyzstan</option>
+                    <option value="LA">Lao People's Democratic Republic</option>
+                    <option value="LV">Latvia</option>
+                    <option value="LB">Lebanon</option>
+                    <option value="LS">Lesotho</option>
+                    <option value="LR">Liberia</option>
+                    <option value="LY">Libya</option>
+                    <option value="LI">Liechtenstein</option>
+                    <option value="LT">Lithuania</option>
+                    <option value="LU">Luxembourg</option>
+                    <option value="MG">Madagascar</option>
+                    <option value="MW">Malawi</option>
+                    <option value="MY">Malaysia</option>
+                    <option value="MV">Maldives</option>
+                    <option value="ML">Mali</option>
+                    <option value="MT">Malta</option>
+                    <option value="MH">Marshall Islands</option>
+                    <option value="MR">Mauritania</option>
+                    <option value="MU">Mauritius</option>
+                    <option value="MX">Mexico</option>
+                    <option value="FM">Micronesia (Federated States of)</option>
+                    <option value="MD">Moldova, Republic of</option>
+                    <option value="MC">Monaco</option>
+                    <option value="MN">Mongolia</option>
+                    <option value="ME">Montenegro</option>
+                    <option value="MA">Morocco</option>
+                    <option value="MZ">Mozambique</option>
+                    <option value="MM">Myanmar</option>
+                    <option value="NA">Namibia</option>
+                    <option value="NR">Nauru</option>
+                    <option value="NP">Nepal</option>
+                    <option value="NL">Netherlands</option>
+                    <option value="NZ">New Zealand</option>
+                    <option value="NI">Nicaragua</option>
+                    <option value="NE">Niger</option>
+                    <option value="NG">Nigeria</option>
+                    <option value="MK">North Macedonia</option>
+                    <option value="NO">Norway</option>
+                    <option value="OM">Oman</option>
+                    <option value="PK">Pakistan</option>
+                    <option value="PW">Palau</option>
+                    <option value="PA">Panama</option>
+                    <option value="PG">Papua New Guinea</option>
+                    <option value="PY">Paraguay</option>
+                    <option value="PE">Peru</option>
+                    <option value="PH">Philippines</option>
+                    <option value="PL">Poland</option>
+                    <option value="PT">Portugal</option>
+                    <option value="QA">Qatar</option>
+                    <option value="RO">Romania</option>
+                    <option value="RU">Russian Federation</option>
+                    <option value="RW">Rwanda</option>
+                    <option value="KN">Saint Kitts and Nevis</option>
+                    <option value="LC">Saint Lucia</option>
+                    <option value="VC">Saint Vincent and the Grenadines</option>
+                    <option value="WS">Samoa</option>
+                    <option value="SM">San Marino</option>
+                    <option value="ST">Sao Tome and Principe</option>
+                    <option value="SA">Saudi Arabia</option>
+                    <option value="SN">Senegal</option>
+                    <option value="RS">Serbia</option>
+                    <option value="SC">Seychelles</option>
+                    <option value="SL">Sierra Leone</option>
+                    <option value="SG">Singapore</option>
+                    <option value="SK">Slovakia</option>
+                    <option value="SI">Slovenia</option>
+                    <option value="SB">Solomon Islands</option>
+                    <option value="SO">Somalia</option>
+                    <option value="ZA">South Africa</option>
+                    <option value="SS">South Sudan</option>
+                    <option value="ES">Spain</option>
+                    <option value="LK">Sri Lanka</option>
+                    <option value="SD">Sudan</option>
+                    <option value="SR">Suriname</option>
+                    <option value="SE">Sweden</option>
+                    <option value="CH">Switzerland</option>
+                    <option value="SY">Syrian Arab Republic</option>
+                    <option value="TW">Taiwan, Province of China</option>
+                    <option value="TJ">Tajikistan</option>
+                    <option value="TZ">Tanzania, United Republic of</option>
+                    <option value="TH">Thailand</option>
+                    <option value="TL">Timor-Leste</option>
+                    <option value="TG">Togo</option>
+                    <option value="TO">Tonga</option>
+                    <option value="TT">Trinidad and Tobago</option>
+                    <option value="TN">Tunisia</option>
+                    <option value="TR">Turkey</option>
+                    <option value="TM">Turkmenistan</option>
+                    <option value="TV">Tuvalu</option>
+                    <option value="UG">Uganda</option>
+                    <option value="UA">Ukraine</option>
+                    <option value="AE">United Arab Emirates</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="US">United States</option>
+                    <option value="UY">Uruguay</option>
+                    <option value="UZ">Uzbekistan</option>
+                    <option value="VU">Vanuatu</option>
+                    <option value="VE">Venezuela</option>
+                    <option value="VN">Viet Nam</option>
+                    <option value="YE">Yemen</option>
+                    <option value="ZM">Zambia</option>
+                    <option value="ZW">Zimbabwe</option>
+                </select>
+                <div id="country-issue-<?php echo $i; ?>-error" class="error-message">Country of issue is required.</div>
+            </div>
+            <div class="form-row">
+                <label for="country-birth-<?php echo $i; ?>">Country of birth</label>
+                <select id="country-birth-<?php echo $i; ?>" name="country-birth[]" required>
+                    <option value="" selected disabled hidden>Select country</option>
+                    <option value="AF">Afghanistan</option>
+                    <option value="AL">Albania</option>
+                    <option value="DZ">Algeria</option>
+                    <option value="AS">American Samoa</option>
+                    <option value="AD">Andorra</option>
+                    <option value="AO">Angola</option>
+                    <option value="AI">Anguilla</option>
+                    <option value="AQ">Antarctica</option>
+                    <option value="AG">Antigua and Barbuda</option>
+                    <option value="AR">Argentina</option>
+                    <option value="AM">Armenia</option>
+                    <option value="AW">Aruba</option>
+                    <option value="AU">Australia</option>
+                    <option value="AT">Austria</option>
+                    <option value="AZ">Azerbaijan</option>
+                    <option value="BS">Bahamas</option>
+                    <option value="BH">Bahrain</option>
+                    <option value="BD">Bangladesh</option>
+                    <option value="BB">Barbados</option>
+                    <option value="BY">Belarus</option>
+                    <option value="BE">Belgium</option>
+                    <option value="BZ">Belize</option>
+                    <option value="BJ">Benin</option>
+                    <option value="BM">Bermuda</option>
+                    <option value="BT">Bhutan</option>
+                    <option value="BO">Bolivia</option>
+                    <option value="BA">Bosnia and Herzegovina</option>
+                    <option value="BW">Botswana</option>
+                    <option value="BR">Brazil</option>
+                    <option value="BN">Brunei Darussalam</option>
+                    <option value="BG">Bulgaria</option>
+                    <option value="BF">Burkina Faso</option>
+                    <option value="BI">Burundi</option>
+                    <option value="CV">Cabo Verde</option>
+                    <option value="KH">Cambodia</option>
+                    <option value="CM">Cameroon</option>
+                    <option value="CA">Canada</option>
+                    <option value="KY">Cayman Islands</option>
+                    <option value="CF">Central African Republic</option>
+                    <option value="TD">Chad</option>
+                    <option value="CL">Chile</option>
+                    <option value="CN">China</option>
+                    <option value="CO">Colombia</option>
+                    <option value="KM">Comoros</option>
+                    <option value="CG">Congo</option>
+                    <option value="CD">Congo, Democratic Republic of the</option>
+                    <option value="CR">Costa Rica</option>
+                    <option value="CI">Côte d'Ivoire</option>
+                    <option value="HR">Croatia</option>
+                    <option value="CU">Cuba</option>
+                    <option value="CY">Cyprus</option>
+                    <option value="CZ">Czech Republic</option>
+                    <option value="DK">Denmark</option>
+                    <option value="DJ">Djibouti</option>
+                    <option value="DM">Dominica</option>
+                    <option value="DO">Dominican Republic</option>
+                    <option value="EC">Ecuador</option>
+                    <option value="EG">Egypt</option>
+                    <option value="SV">El Salvador</option>
+                    <option value="GQ">Equatorial Guinea</option>
+                    <option value="ER">Eritrea</option>
+                    <option value="EE">Estonia</option>
+                    <option value="SZ">Eswatini</option>
+                    <option value="ET">Ethiopia</option>
+                    <option value="FJ">Fiji</option>
+                    <option value="FI">Finland</option>
+                    <option value="FR">France</option>
+                    <option value="GA">Gabon</option>
+                    <option value="GM">Gambia</option>
+                    <option value="GE">Georgia</option>
+                    <option value="DE">Germany</option>
+                    <option value="GH">Ghana</option>
+                    <option value="GR">Greece</option>
+                    <option value="GD">Grenada</option>
+                    <option value="GU">Guam</option>
+                    <option value="GT">Guatemala</option>
+                    <option value="GN">Guinea</option>
+                    <option value="GW">Guinea-Bissau</option>
+                    <option value="GY">Guyana</option>
+                    <option value="HT">Haiti</option>
+                    <option value="HN">Honduras</option>
+                    <option value="HU">Hungary</option>
+                    <option value="IS">Iceland</option>
+                    <option value="IN">India</option>
+                    <option value="ID">Indonesia</option>
+                    <option value="IR">Iran, Islamic Republic of</option>
+                    <option value="IQ">Iraq</option>
+                    <option value="IE">Ireland</option>
+                    <option value="IL">Israel</option>
+                    <option value="IT">Italy</option>
+                    <option value="JM">Jamaica</option>
+                    <option value="JP">Japan</option>
+                    <option value="JO">Jordan</option>
+                    <option value="KZ">Kazakhstan</option>
+                    <option value="KE">Kenya</option>
+                    <option value="KI">Kiribati</option>
+                    <option value="KP">Korea, Democratic People's Republic of</option>
+                    <option value="KR">Korea, Republic of</option>
+                    <option value="KW">Kuwait</option>
+                    <option value="KG">Kyrgyzstan</option>
+                    <option value="LA">Lao People's Democratic Republic</option>
+                    <option value="LV">Latvia</option>
+                    <option value="LB">Lebanon</option>
+                    <option value="LS">Lesotho</option>
+                    <option value="LR">Liberia</option>
+                    <option value="LY">Libya</option>
+                    <option value="LI">Liechtenstein</option>
+                    <option value="LT">Lithuania</option>
+                    <option value="LU">Luxembourg</option>
+                    <option value="MG">Madagascar</option>
+                    <option value="MW">Malawi</option>
+                    <option value="MY">Malaysia</option>
+                    <option value="MV">Maldives</option>
+                    <option value="ML">Mali</option>
+                    <option value="MT">Malta</option>
+                    <option value="MH">Marshall Islands</option>
+                    <option value="MR">Mauritania</option>
+                    <option value="MU">Mauritius</option>
+                    <option value="MX">Mexico</option>
+                    <option value="FM">Micronesia (Federated States of)</option>
+                    <option value="MD">Moldova, Republic of</option>
+                    <option value="MC">Monaco</option>
+                    <option value="MN">Mongolia</option>
+                    <option value="ME">Montenegro</option>
+                    <option value="MA">Morocco</option>
+                    <option value="MZ">Mozambique</option>
+                    <option value="MM">Myanmar</option>
+                    <option value="NA">Namibia</option>
+                    <option value="NR">Nauru</option>
+                    <option value="NP">Nepal</option>
+                    <option value="NL">Netherlands</option>
+                    <option value="NZ">New Zealand</option>
+                    <option value="NI">Nicaragua</option>
+                    <option value="NE">Niger</option>
+                    <option value="NG">Nigeria</option>
+                    <option value="MK">North Macedonia</option>
+                    <option value="NO">Norway</option>
+                    <option value="OM">Oman</option>
+                    <option value="PK">Pakistan</option>
+                    <option value="PW">Palau</option>
+                    <option value="PA">Panama</option>
+                    <option value="PG">Papua New Guinea</option>
+                    <option value="PY">Paraguay</option>
+                    <option value="PE">Peru</option>
+                    <option value="PH">Philippines</option>
+                    <option value="PL">Poland</option>
+                    <option value="PT">Portugal</option>
+                    <option value="QA">Qatar</option>
+                    <option value="RO">Romania</option>
+                    <option value="RU">Russian Federation</option>
+                    <option value="RW">Rwanda</option>
+                    <option value="KN">Saint Kitts and Nevis</option>
+                    <option value="LC">Saint Lucia</option>
+                    <option value="VC">Saint Vincent and the Grenadines</option>
+                    <option value="WS">Samoa</option>
+                    <option value="SM">San Marino</option>
+                    <option value="ST">Sao Tome and Principe</option>
+                    <option value="SA">Saudi Arabia</option>
+                    <option value="SN">Senegal</option>
+                    <option value="RS">Serbia</option>
+                    <option value="SC">Seychelles</option>
+                    <option value="SL">Sierra Leone</option>
+                    <option value="SG">Singapore</option>
+                    <option value="SK">Slovakia</option>
+                    <option value="SI">Slovenia</option>
+                    <option value="SB">Solomon Islands</option>
+                    <option value="SO">Somalia</option>
+                    <option value="ZA">South Africa</option>
+                    <option value="SS">South Sudan</option>
+                    <option value="ES">Spain</option>
+                    <option value="LK">Sri Lanka</option>
+                    <option value="SD">Sudan</option>
+                    <option value="SR">Suriname</option>
+                    <option value="SE">Sweden</option>
+                    <option value="CH">Switzerland</option>
+                    <option value="SY">Syrian Arab Republic</option>
+                    <option value="TW">Taiwan, Province of China</option>
+                    <option value="TJ">Tajikistan</option>
+                    <option value="TZ">Tanzania, United Republic of</option>
+                    <option value="TH">Thailand</option>
+                    <option value="TL">Timor-Leste</option>
+                    <option value="TG">Togo</option>
+                    <option value="TO">Tonga</option>
+                    <option value="TT">Trinidad and Tobago</option>
+                    <option value="TN">Tunisia</option>
+                    <option value="TR">Turkey</option>
+                    <option value="TM">Turkmenistan</option>
+                    <option value="TV">Tuvalu</option>
+                    <option value="UG">Uganda</option>
+                    <option value="UA">Ukraine</option>
+                    <option value="AE">United Arab Emirates</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="US">United States</option>
+                    <option value="UY">Uruguay</option>
+                    <option value="UZ">Uzbekistan</option>
+                    <option value="VU">Vanuatu</option>
+                    <option value="VE">Venezuela</option>
+                    <option value="VN">Viet Nam</option>
+                    <option value="YE">Yemen</option>
+                    <option value="ZM">Zambia</option>
+                    <option value="ZW">Zimbabwe</option>
+                </select>
+                <div id="country-birth-<?php echo $i; ?>-error" class="error-message">Country of birth is required.</div>
+            </div>
+        </div>
+        <div class="notice-box">
+            <strong>Sharing of emergency contact details.</strong><br>
+            Please confirm and provide your contact details (mobile number and/or email) if you wish the carriers operating your flights to be able to contact you due to operational disruption such as cancellations, delays and schedule changes etc.
+            <div class="d-flex gap-5 row ms-3 my-3">
+                <div style="border:1px solid #00000073" class="d-flex gap-3 col-6">
+                    <input type="radio" id="share-<?php echo $i; ?>" name="emergency_contact_<?php echo $i; ?>" value="share">
+                    <label for="share-<?php echo $i; ?>">I wish to share emergency contact details</label>
+                </div>
+                <div style="border:1px solid #00000073" class="d-flex gap-3 col-5">
+                    <input type="radio" id="no-share-<?php echo $i; ?>" name="emergency_contact_<?php echo $i; ?>" value="no-share" checked>
+                    <label for="no-share-<?php echo $i; ?>">I don't wish to share my details</label>
+                </div>
+            </div>
+            <div id="contact-details-<?php echo $i; ?>" style="margin: 0 1rem;" class="hidden">
+                <div class="form-row row d-flex">
+                    <div class="form-group col-6">
+                        <label for="emergency_country-<?php echo $i; ?>">Country*</label>
+                        <select id="emergency_country-<?php echo $i; ?>" name="emergency_country[]" required>
+                            <option value="" selected disabled hidden>Select country</option>
+                            <option value="+91">India</option>
+                            <!-- Add more country options here -->
+                        </select>
+                        <div id="emergency_country-<?php echo $i; ?>-error" class="error-message">Country is required.</div>
+                    </div>
+                    <div class="form-group col-6">
+                        <label for="emergency_phone-number-<?php echo $i; ?>">Phone number*</label>
+                        <input placeholder="Enter phone number" type="tel" id="emergency_phone-number-<?php echo $i; ?>" name="emergency_phone-number[]" required>
+                        <div id="emergency_phone-number-<?php echo $i; ?>-error" class="error-message">Phone number is required.</div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="margin-right: 50.36666%">
+                        <label for="emergency_email-address-<?php echo $i; ?>">E-mail address*</label>
+                        <input type="email" id="emergency_email-address-<?php echo $i; ?>" name="emergency_email-address[]" placeholder="Enter email" required>
+                        <div id="emergency_email-address-<?php echo $i; ?>-error" class="error-message">Email address is required.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endfor; ?>
+
             <div>
                 <h2 class="text-start ">Invoice Address</h2>
                 <div id="main">
@@ -1762,145 +1751,149 @@ $formData = $_SESSION['formData'];
     </form>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Populate year dropdowns
-            function populateYearDropdowns() {
-                const currentYear = new Date().getFullYear();
+    // Populate year dropdowns
+    function populateYearDropdowns() {
+        const currentYear = new Date().getFullYear();
 
-                for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
-                    const dobYear = document.getElementById('dob-year-' + i);
-                    const idissueyear = document.getElementById('id-issue-year-' + i);
-                    const idExpireYear = document.getElementById('id-expire-year-' + i);
+        for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
+            const dobYear = document.getElementById('dob-year-' + i);
+            const idissueyear = document.getElementById('id-issue-year-' + i);
+            const idExpireYear = document.getElementById('id-expire-year-' + i);
 
-                    for (let year = currentYear; year >= 1900; year--) {
-                        let option = new Option(year, year);
-                        dobYear.add(option);
-                    }
-
-                    for (let year = currentYear; year >= 1900; year--) {
-                        let option = new Option(year, year);
-                        idissueyear.add(option);
-                    }
-
-                    for (let year = currentYear; year <= currentYear + 50; year++) {
-                        let option = new Option(year, year);
-                        idExpireYear.add(option);
-                    }
-                }
+            for (let year = currentYear; year >= 1900; year--) {
+                let option = new Option(year, year);
+                dobYear.add(option);
             }
 
-            populateYearDropdowns();
+            for (let year = currentYear; year >= 1900; year--) {
+                let option = new Option(year, year);
+                idissueyear.add(option);
+            }
 
-            // Validate fields on input
-            const requiredFields = [
-                'title', 'first-name', 'last-name',
-                'dob-day', 'dob-month', 'dob-year',
-                'id-method', 'id-number',
-                'id-expire-day', 'id-expire-month', 'id-expire-year',
-                'country-issue', 'country-birth', 'phone-number', 'city',
-                'zip-code', 'street', 'house-no'
-            ];
+            for (let year = currentYear; year <= currentYear + 50; year++) {
+                let option = new Option(year, year);
+                idExpireYear.add(option);
+            }
+        }
+    }
 
-            for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
-                requiredFields.forEach(function(field) {
-                    const input = document.getElementById(field + '-' + i);
-                    if (input) {
-                        input.addEventListener('input', function() {
-                            validateField(input);
-                        });
-                    }
+    populateYearDropdowns();
+
+    // Validate fields on input
+    const requiredFields = [
+        'title', 'first-name', 'last-name',
+        'dob-day', 'dob-month', 'dob-year',
+        'id-method', 'id-number',
+        'id-expire-day', 'id-expire-month', 'id-expire-year',
+        'country-issue', 'country-birth', 'phone-number', 'city',
+        'zip-code', 'street'
+    ];
+
+    for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
+        requiredFields.forEach(function(field) {
+            const input = document.getElementById(field + '-' + i);
+            if (input) {
+                input.addEventListener('input', function() {
+                    validateField(input);
                 });
             }
+        });
+    }
 
-            function validateField(input) {
-                const errorElement = document.getElementById(input.id + '-error');
-                if (input.value === '' || input.value === null) {
-                    showError(input, errorElement, 'This field is required.');
-                } else if ((input.id.includes('first-name') || input.id.includes('last-name') || input.id.includes('city') || input.id.includes('street')) && /\d/.test(input.value)) {
-                    showError(input, errorElement, 'This field should not contain numbers.');
-                } else if ((input.id.includes('id-number') || input.id.includes('zip-code') || input.id.includes('house-no') || input.id.includes('phone-number') || input.id.includes('emergency_phone-number')) && /\D/.test(input.value)) {
-                    showError(input, errorElement, 'This field should only contain numbers.');
+    function validateField(input) {
+        const errorElement = document.getElementById(input.id + '-error');
+        if (input.value === '' || input.value === null) {
+            showError(input, errorElement, 'This field is required.');
+        } else if ((input.id.includes('first-name') || input.id.includes('last-name') || input.id.includes('city') || input.id.includes('street')) && /\d/.test(input.value)) {
+            showError(input, errorElement, 'This field should not contain numbers.');
+        } else if ((input.id.includes('id-number') || input.id.includes('zip-code') || input.id.includes('phone-number') || input.id.includes('emergency_phone-number')) && /\D/.test(input.value)) {
+            showError(input, errorElement, 'This field should only contain numbers.');
+        } else {
+            hideError(input, errorElement);
+        }
+    }
+
+    function showError(input, errorElement, message) {
+        input.style.border = 'red 2px solid';
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+    }
+
+    function hideError(input, errorElement) {
+        input.style.border = '';
+        errorElement.style.display = 'none';
+    }
+
+    function toggleRequiredAttributes(index, shouldShare) {
+        const emergencyFields = [
+            'emergency_country', 'emergency_phone-number', 'emergency_email-address'
+        ];
+
+        emergencyFields.forEach(function(field) {
+            const input = document.getElementById(field + '-' + index);
+            if (input) {
+                if (shouldShare) {
+                    input.setAttribute('required', 'required');
                 } else {
+                    input.removeAttribute('required');
+                }
+            }
+        });
+    }
+
+    // Validate form on submit
+    document.getElementById('passenger-form').addEventListener('submit', function(event) {
+        let valid = true;
+
+        for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
+            requiredFields.forEach(function(field) {
+                const input = document.getElementById(field + '-' + i);
+                const errorElement = document.getElementById(field + '-' + i + '-error');
+
+                if (input && (input.value === '' || input.value === null)) {
+                    showError(input, errorElement, 'This field is required.');
+                    valid = false;
+                } else if (input && (input.id.includes('first-name') || input.id.includes('last-name') || input.id.includes('city') || input.id.includes('street')) && /\d/.test(input.value)) {
+                    showError(input, errorElement, 'This field should not contain numbers.');
+                    valid = false;
+                } else if (input && (input.id.includes('id-number') || input.id.includes('zip-code') || input.id.includes('phone-number') || input.id.includes('emergency_phone-number')) && /\D/.test(input.value)) {
+                    showError(input, errorElement, 'This field should only contain numbers.');
+                    valid = false;
+                } else if (input) {
                     hideError(input, errorElement);
                 }
-            }
-
-            function showError(input, errorElement, message) {
-                input.style.border = 'red 2px solid';
-                errorElement.textContent = message;
-                errorElement.style.display = 'block';
-            }
-
-            function hideError(input, errorElement) {
-                input.style.border = '';
-                errorElement.style.display = 'none';
-            }
-
-            function toggleRequiredAttributes(index, shouldShare) {
-                const emergencyFields = [
-                    'emergency_country', 'emergency_phone-number', 'emergency_email-address'
-                ];
-
-                emergencyFields.forEach(function(field) {
-                    const input = document.getElementById(field + '-' + index);
-                    if (input) {
-                        if (shouldShare) {
-                            input.setAttribute('required', 'required');
-                        } else {
-                            input.removeAttribute('required');
-                        }
-                    }
-                });
-            }
-
-            // Validate form on submit
-            document.getElementById('passenger-form').addEventListener('submit', function(event) {
-                let valid = true;
-
-                for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
-                    requiredFields.forEach(function(field) {
-                        const input = document.getElementById(field + '-' + i);
-                        const errorElement = document.getElementById(field + '-' + i + '-error');
-
-                        if (input && (input.value === '' || input.value === null)) {
-                            showError(input, errorElement, 'This field is required.');
-                            valid = false;
-                        } else if (input && (input.id.includes('first-name') || input.id.includes('last-name') || input.id.includes('city') || input.id.includes('street')) && /\d/.test(input.value)) {
-                            showError(input, errorElement, 'This field should not contain numbers.');
-                            valid = false;
-                        } else if (input && (input.id.includes('id-number') || input.id.includes('zip-code') || input.id.includes('house-no') || input.id.includes('phone-number') || input.id.includes('emergency_phone-number')) && /\D/.test(input.value)) {
-                            showError(input, errorElement, 'This field should only contain numbers.');
-                            valid = false;
-                        } else if (input) {
-                            hideError(input, errorElement);
-                        }
-                    });
-                }
-
-                if (!valid) {
-                    event.preventDefault(); // Prevent form submission if not valid
-                }
             });
+        }
 
-            function toggleDropdown(index) {
-                const shouldShare = $('#share-' + index).is(':checked');
-                if (shouldShare) {
-                    $('#contact-details-' + index).removeClass('hidden');
-                } else {
-                    $('#contact-details-' + index).addClass('hidden');
-                }
-                toggleRequiredAttributes(index, shouldShare);
-            }
+        if (!valid) {
+            event.preventDefault(); // Prevent form submission if not valid
+        }
+    });
 
-            $(document).ready(function() {
-                for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
-                    toggleDropdown(i);
-                    $('input[name="emergency_contact_' + i + '"]').on('change', function() {
-                        toggleDropdown(i);
-                    });
-                }
+    function toggleDropdown(index) {
+        const shouldShare = $('#share-' + index).is(':checked');
+        if (shouldShare) {
+            $('#contact-details-' + index).removeClass('hidden');
+        } else {
+            $('#contact-details-' + index).addClass('hidden');
+        }
+        toggleRequiredAttributes(index, shouldShare);
+    }
+
+    $(document).ready(function() {
+        for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
+            toggleDropdown(i);
+            $('input[name="emergency_contact_' + i + '"]').on('change', function() {
+                toggleDropdown(i);
             });
-        });
+        }
+    });
+});
+
     </script>
 </body>
 
 </html>
+=======
+
+>>>>>>> main
