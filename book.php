@@ -1,4 +1,3 @@
-<<<<<<< homePush
 <?php
 session_start();
 $formData = $_SESSION['formData'];
@@ -1894,6 +1893,4 @@ for ($i = 0; $i < $formData['total']; $i++):
 </body>
 
 </html>
-=======
 
->>>>>>> main
