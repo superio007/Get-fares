@@ -178,7 +178,7 @@ session_start();
             // Close the cURL session
             curl_close($ch);
         } else {
-            echo 'Missing traceId or purchaseId';
+            
         }
     }
     
@@ -407,98 +407,101 @@ session_start();
             </form>
         </div>
     </div>
-    <?php if (isset($responseData)): ?>     
-    <?php foreach ($responseData['flights'] as $index => $flight): ?>
-        <form action="" method="get" name="book" class="bookForm">
-            <div class="container my-5">
-                <div class="flight-result">
-                    <div class="d-flex justify-content-between">
-                        <div class="price">
-                            <?php
-                            $baseFare = $flight['fareGroups'][0]['fares'][0]['base'];
-                            echo number_format($baseFare, 2) . " INR";
-                            ?>
-                            <input type="text" name="traceId" id="traceId" value="<?php echo  $responseData['traceId']?>" hidden>
-                        </div>
-                        <div>Price p.p.</div>
-                    </div>
-                    <div class="flight-info mt-3">
-                        <span>
-                            Total price: <?php echo $flight['adtNum']; ?>× Adults –
-                            <?php echo number_format($baseFare * $flight['adtNum'], 2) . " INR"; ?>
-                        </span>
-                        <div class="mt-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong>Outbound</strong> <?php echo $flight['fareGroups'][0]['fareType']; ?> fare (<?php echo $flight['fareGroups'][0]['priceClass']; ?>)
-                                </div>
-                                <div><?php echo $flight['airline']; ?></div>
-                            </div>
-                            <?php foreach ($flight['segGroups'] as $segGroup): ?>
-                                <?php foreach ($segGroup['segs'] as $segment): ?>
-                                    <div class="d-flex justify-content-between align-items-center mt-2">
-                                        <div>
-                                            <i class="fas fa-plane"></i> <?php echo date("H:i d.m.Y", strtotime($segment['departureOn'])); ?> <?php echo $segment['origin']; ?>
-                                        </div>
-                                        <div>
-                                            <i class="fas fa-clock"></i> <?php echo floor($segment['duration'] / 60); ?>h <?php echo $segment['duration'] % 60; ?>m
-                                        </div>
-                                        <div>
-                                            <i class="fas fa-plane-arrival"></i> <?php echo date("H:i d.m.Y", strtotime($segment['arrivalOn'])); ?> <?php echo $segment['destination']; ?>
-                                        </div>
+    <?php if (isset($responseData)): ?> 
+        <div class="container">    
+            <?php foreach ($responseData['flights'] as $index => $flight): ?>
+                <form action="" method="get" name="book" class="bookForm">
+                        <div class="my-5">
+                            <div class="flight-result">
+                                <div class="d-flex justify-content-between">
+                                    <div class="price">
+                                        <?php
+                                        $baseFare = $flight['fareGroups'][0]['fares'][0]['base'];
+                                        echo number_format($baseFare, 2) . " INR";
+                                        ?>
+                                        <input type="text" name="traceId" id="traceId" value="<?php echo  $responseData['traceId']?>" hidden>
                                     </div>
-                                <?php endforeach; ?>
-                            <?php endforeach; ?>
-                            <div class="d-flex justify-content-between align-items-center mt-3">
-                                <div class="available-seats">
-                                    <?php
-                                    $minSeats = PHP_INT_MAX;
-                                    $seatInfoAvailable = false;
+                                    <div>Price p.p.</div>
+                                </div>
+                                <div class="flight-info mt-3">
+                                    <span>
+                                        Total price: <?php echo $flight['adtNum']; ?>× Adults –
+                                        <?php echo number_format($baseFare * $flight['adtNum'], 2) . " INR"; ?>
+                                    </span>
+                                    <div class="mt-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>Outbound</strong> <?php echo $flight['fareGroups'][0]['fareType']; ?> fare (<?php echo $flight['fareGroups'][0]['priceClass']; ?>)
+                                            </div>
+                                            <div><?php echo $flight['airline']; ?></div>
+                                        </div>
+                                        <?php foreach ($flight['segGroups'] as $segGroup): ?>
+                                            <?php foreach ($segGroup['segs'] as $segment): ?>
+                                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                                    <div>
+                                                        <i class="fas fa-plane"></i> <?php echo date("H:i d.m.Y", strtotime($segment['departureOn'])); ?> <?php echo $segment['origin']; ?>
+                                                    </div>
+                                                    <div>
+                                                        <i class="fas fa-clock"></i> <?php echo floor($segment['duration'] / 60); ?>h <?php echo $segment['duration'] % 60; ?>m
+                                                    </div>
+                                                    <div>
+                                                        <i class="fas fa-plane-arrival"></i> <?php echo date("H:i d.m.Y", strtotime($segment['arrivalOn'])); ?> <?php echo $segment['destination']; ?>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        <?php endforeach; ?>
+                                        <div class="d-flex justify-content-between align-items-center mt-3">
+                                            <div class="available-seats">
+                                                <?php
+                                                $minSeats = PHP_INT_MAX;
+                                                $seatInfoAvailable = false;
 
-                                    if (isset($flight['fareGroups']) && is_array($flight['fareGroups'])) {
-                                        foreach ($flight['fareGroups'] as $fareGroup) {
-                                            if (isset($fareGroup['segInfos']) && is_array($fareGroup['segInfos'])) {
-                                                foreach ($fareGroup['segInfos'] as $segInfo) {
-                                                    if (isset($segInfo['seatRemaining'])) {
-                                                        $minSeats = min($minSeats, $segInfo['seatRemaining']);
-                                                        $seatInfoAvailable = true;
+                                                if (isset($flight['fareGroups']) && is_array($flight['fareGroups'])) {
+                                                    foreach ($flight['fareGroups'] as $fareGroup) {
+                                                        if (isset($fareGroup['segInfos']) && is_array($fareGroup['segInfos'])) {
+                                                            foreach ($fareGroup['segInfos'] as $segInfo) {
+                                                                if (isset($segInfo['seatRemaining'])) {
+                                                                    $minSeats = min($minSeats, $segInfo['seatRemaining']);
+                                                                    $seatInfoAvailable = true;
+                                                                }
+                                                            }
+                                                        }
                                                     }
                                                 }
-                                            }
-                                        }
-                                    }
 
-                                    if ($seatInfoAvailable) {
-                                        echo "At least $minSeats seats available<br>";
-                                    } else {
-                                        echo "Seat information not available<br>";
-                                    }
-                                    ?>
-                                    <input type="text" name="purchaseId" id="purchaseId" value="<?php echo  $fareGroup['purchaseId']?>" hidden>
+                                                if ($seatInfoAvailable) {
+                                                    echo "At least $minSeats seats available<br>";
+                                                } else {
+                                                    echo "Seat information not available<br>";
+                                                }
+                                                ?>
+                                                <input type="text" name="purchaseId" id="purchaseId" value="<?php echo  $fareGroup['purchaseId']?>" hidden>
+                                            </div>
+                                            <button type="submit" class="btn book-button" >Book this offer</button>
+                                        </div>
+                                        <div class="mt-3">
+                                            <span class="price-breakdown" data-index="<?php echo $index; ?>">+ DISPLAY PRICE BREAKDOWN</span>
+                                        </div>
+                                        <div class="price-breakdown-content" id="price-breakdown-<?php echo $index; ?>">
+                                        <?php foreach($fareGroup['fares'] as $fare):?>
+                                                <p style="margin: 12px 0 6px 12px;">
+                                                <?php if($fare['paxType']=="ADT"){
+                                                        echo "Adult";
+                                                }elseif($fare['paxType']=="CHD"){
+                                                        echo "Child";
+                                                }else{
+                                                        echo "Infant";
+                                                }?> : <?php echo number_format($fare['base'], 2)?></p>
+                                        <?php endforeach;?>
+                                    </div>
                                 </div>
-                                <button type="submit" class="btn book-button" >Book this offer</button>
                             </div>
-                            <div class="mt-3">
-                                <span class="price-breakdown" data-index="<?php echo $index; ?>">+ DISPLAY PRICE BREAKDOWN</span>
-                            </div>
-                            <div class="price-breakdown-content" id="price-breakdown-<?php echo $index; ?>">
-                            <?php foreach($fareGroup['fares'] as $fare):?>
-                                    <p style="margin: 12px 0 6px 12px;">
-                                    <?php if($fare['paxType']=="ADT"){
-                                            echo "Adult";
-                                    }elseif($fare['paxType']=="CHD"){
-                                            echo "Child";
-                                    }else{
-                                            echo "Infant";
-                                    }?> : <?php echo number_format($fare['base'], 2)?></p>
-                            <?php endforeach;?>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-    <?php endforeach; ?>
-<?php endif; ?>
+                    
+                </form>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
 <script>
     $(document).ready(function() {
         // Cities array

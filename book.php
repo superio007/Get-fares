@@ -1,5 +1,6 @@
 <?php
 session_start();
+$formData = $_SESSION['formData'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -233,8 +234,7 @@ session_start();
             font-size: 16px;
             cursor: pointer;
         }
-
-        #main .form-submit button:hover {
+         #main .form-submit button:hover {
             background-color: #005bb5;
         }
 
@@ -246,10 +246,23 @@ session_start();
 
 <body>
     <?php
+    // Database credentials
+    $db_host = 'localhost';
+    $db_user = 'root';
+    $db_pass = '';
+    $db_name = 'test';
+
+    // Create connection
+    $mysqli = new mysqli($db_host, $db_user, $db_pass, $db_name);
+
+    // Check connection
+    if ($mysqli->connect_error) {
+        die("Connection failed: " . $mysqli->connect_error);
+    }
     $traceId = $_GET['traceId'];
-    echo $traceId;
+    // echo $traceId;
     $purchaseId = $_GET['purchaseId'];
-    echo $purchaseId;
+    // echo $purchaseId;
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $errors = [];
 
@@ -345,12 +358,120 @@ session_start();
             validate_date($id_expire_day, $id_expire_month, $id_expire_year, 'ID expire date');
         }
 
+        $id_issue_day = $_POST['id-issue-day'];
+        $id_issue_month = $_POST['id-issue-month'];
+        $id_issue_year = $_POST['id-issue-year'];
+        validate_required('id-issue-day', $id_issue_day);
+        validate_required('id-issue-month', $id_issue_month);
+        validate_required('id-issue-year', $id_issue_year);
+        if (!isset($errors['id-issue-day']) && !isset($errors['id-issue-month']) && !isset($errors['id-issue-year'])) {
+            validate_date($id_issue_day, $id_issue_month, $id_issue_year, 'ID expire date');
+        }
+
         $country_issue = $_POST['country-issue'];
         validate_required('country-issue', $country_issue);
 
         $country_birth = $_POST['country-birth'];
         validate_required('country-birth', $country_birth);
 
+        if(isset($_POST['paxType'])){
+            $paxType = $_POST['paxType'];
+            if($paxType == "Adult"){
+                $paxType = "ADT";
+            }elseif($paxType == "Child"){
+                $paxType = "CHD";
+            }else{
+                $paxType = "INF";
+            }
+            validate_required('paxType', $paxType);
+        }
+        
+        $dob = $dob_year . '-' . str_pad($dob_month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($dob_day, 2, '0', STR_PAD_LEFT);
+
+        $idissueDate = $id_issue_year . '-' . str_pad($id_issue_month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($id_issue_day, 2, '0', STR_PAD_LEFT);
+
+        $idexpireDate = $id_expire_year . '-' . str_pad($id_expire_month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($id_expire_day, 2, '0', STR_PAD_LEFT);
+        $seatref = "N";
+
+        // Prepare and bind
+        $stmt = $mysqli->prepare("INSERT INTO wpk4_backend_travel_booking_pax (traceId, purchaseid, salutation, fname, lname, email, gender, dob, paxType, mobile_no, passportNumber, passportDOI, passportDOE, passportIssuedCountry, seatPref, addressName, street, AddresState, postalCode, countryName, countryCode, city,passengerNationality) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)");
+
+        $stmt->bind_param("sssssssssssssssssssssss", 
+            $traceId, 
+            $purchaseId, 
+            $title, 
+            $first_name, 
+            $last_name, 
+            $emailaddress, 
+            $gender, 
+            $dob,
+            $paxType, 
+            $phonenumber, 
+            $id_number, 
+            $idissueDate, 
+            $idexpireDate, 
+            $country_issue, 
+            $seatref,
+            $Address, 
+            $street, 
+            $State, 
+            $zipcode, 
+            $country, 
+            $country_code, 
+            $city,
+            $country_birth
+        );
+
+        // Execute the statement
+        if ($stmt->execute()) {
+            echo "New record created successfully";
+        } else {
+            echo "Error: " . $stmt->error;
+        }
+
+        // Close the statement and connection
+        $stmt->close();
+        $mysqli->close();
+
+        $storequery = $mysqli->prepare("SELECT * FROM `wpk4_backend_travel_booking_pax`");
+        $storequery->execute();
+        $result = $storequery->get_result();
+
+        // Fetch the results into an associative array
+        $results = [];
+        while ($row = $result->fetch_assoc()) {
+            $results[] = $row;
+        }
+        // Close the statement
+        $storequery->close();
+        // Close the connection
+        $mysqli->close();
+        // var_dump($results);
+        foreach($results as $result){
+            if($results['traceId'] == $traceId){
+                $passengers = [
+                    "title"=> $result['salutation'],
+                    "firstName"=>$result['fname'],
+                    "lastName"=> $result['lname'],
+                    "email"=> $result['email'],
+                    "dob"=> $result['dob']."T15=>43=>15.677Z",
+                    "genderType"=> $result['gender'],
+                    "areaCode"=> "",
+                    "ffNumber"=> "",
+                    "paxType"=> $result['paxType'],
+                    "mobile"=> $result['mobile_no'],
+                    "passportNumber"=> $result['passportNumber'],
+                    "passengerNationality"=> $result['passengerNationality'],
+                    "passportDOI"=> $result['passportDOI']."T15=>43=>15.677Z",
+                    "passportDOE"=> $result['passportDOE']."T15=>43=>15.677Z",
+                    "passportIssuedCountry"=> $result['passportIssuedCountry'],
+                    "seatPref"=> $result['seatPref'],
+                    "mealPref"=> "",
+                    "ktn"=> "",
+                    "redressNo"=> ""
+                ];
+            }
+        }
         // Check for errors before processing
         if (empty($errors)) {
             // Process form data
@@ -371,27 +492,7 @@ session_start();
                     $purchaseId
                 ],
                 "passengers"=> [
-                    [
-                        "title"=> $title,
-                        "firstName"=> $first_name,
-                        "lastName"=> $last_name,
-                        "email"=> $emailaddress,
-                        "dob"=> "$dob_year-$dob_month-$dob_day.T15=>43=>15.677Z",
-                        "genderType"=> $gender,
-                        "areaCode"=> "",
-                        "ffNumber"=> "",
-                        "paxType"=> "ADT",
-                        "mobile"=> $phonenumber,
-                        "passportNumber"=> $id_number,
-                        "passengerNationality"=> $country_birth,
-                        "passportDOI"=> "2000-07-07T15=>43=>15.677Z",
-                        "passportDOE"=> "$id_expire_year-$id_expire_month-$id_expire_day.T15=>43=>15.677Z",
-                        "passportIssuedCountry"=> $country_issue,
-                        "seatPref"=> "N",
-                        "mealPref"=> "",
-                        "ktn"=> "",
-                        "redressNo"=> ""
-                    ]
+                    $passengers
                 ],
                 "address"=> [
                     "addressName"=> $Address,
@@ -399,30 +500,31 @@ session_start();
                     "state"=> $State,
                     "postalCode"=> $zipcode,
                     "countryName"=> $country,
-                    "countryCode"=> $country_code,
+                    "countryCode"=> "+".$country_code,
                     "city"=> $city
                 ]
             ];
-            var_dump($data);
-        } else {
-            // Display errors
-            foreach ($errors as $field => $error) {
-                echo "<p>$error</p>";
-            }
-        }
-    }
-    
-    $formData = $_SESSION['formData'];
-    var_dump($formData);
-    $passengerTypes = array_merge(
-        array_fill(0, $formData['adultsCount'], 'Adult'),
-        array_fill(0, $formData['childrenCount'], 'Child'),
-        array_fill(0, $formData['infantsCount'], 'Infant')
-    );
-    $passengers_count = $formData['total'];
-    ?>
+                        // var_dump($data);
+                    } else {
+                        // Display errors
+                        foreach ($errors as $field => $error) {
+                            echo "<p>$error</p>";
+                        }
+                    }
+                }
 
-    <form action="" method="post" id="passenger-form" onsubmit="logFormValues(); return false;">
+        // var_dump($formData);
+        $passengerTypes = array_merge(
+            array_fill(0, $formData['adultsCount'], 'Adult'),
+            array_fill(0, $formData['childrenCount'], 'Child'),
+            array_fill(0, $formData['infantsCount'], 'Infant')
+        );
+        $passengers_count = $formData['total'];
+
+        // DB connection 
+        ?>
+
+    <form action="" method="post" id="passenger-form">
         <div class="passenger-form mb-3">
                 <?php
                 for ($i = 0; $i < $formData['total']; $i++):
@@ -433,6 +535,7 @@ session_start();
                         <div class="info-div">
                             <?php echo ($i + 1) . ". " . $passengerType; ?>
                             <i class="fas fa-info-circle info-icon"></i>
+                            <input type="text" value="<?php echo $passengerType; ?>" hidden name="paxType">
                         </div>
                         <div class="inner-div">
                             <div class="form-row">
@@ -512,84 +615,162 @@ session_start();
                             </select>
                             <div id="dob-<?php echo $i; ?>-error" class="error-message">Complete date of birth is required.</div>
                         </div>
-                        <div class="form-row">
-                            <label for="id-method-<?php echo $i; ?>">Identification method</label>
-                            <select id="id-method-<?php echo $i; ?>" name="id-method" required>
-                                <option value="" selected disabled hidden>Select</option>
-                                <option value="Passport">Passport</option>
-                            </select>
-                            <div id="id-method-<?php echo $i; ?>-error" class="error-message">Identification method is required.</div>
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="id-method-<?php echo $i; ?>">Identification method</label>
+                                <select id="id-method-<?php echo $i; ?>" name="id-method" required>
+                                    <option value="" selected disabled hidden>Select</option>
+                                    <option value="Passport">Passport</option>
+                                </select>
+                                <div id="id-method-<?php echo $i; ?>-error" class="error-message">Identification method is required.</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label style="display: flex;align-items: end;" for="gender-<?php echo $i; ?>">Gender</label>
+                                        <select id="gender-<?php echo $i; ?>" name="gender" required>
+                                            <option value="" selected disabled hidden>Select Gender</option>
+                                            <option value="M">Male</option>
+                                            <option value="F">Female</option>
+                                        </select>
+                                        <div id="gender-<?php echo $i; ?>-error" class="error-message">Gender is required.</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label style="display: flex;align-items: end;" for="id-number-<?php echo $i; ?>">Identification Number</label>
+                                        <input type="text" placeholder="Enter passport number" id="id-number-<?php echo $i; ?>" name="id-number" required>
+                                        <div id="id-number-<?php echo $i; ?>-error" class="error-message">Identification number is required.</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="id-number-row">
-                            <div class="form-row">
-                                <label style="display: flex;align-items: end;" for="gender-<?php echo $i; ?>">Gender</label>
-                                <select id="gender-<?php echo $i; ?>" name="gender" required>
-                                    <option value="" selected disabled hidden>Select Gender</option>
-                                    <option value="M">Male</option>
-                                    <option value="F">Female</option>
-                                </select>
-                                <div id="gender-<?php echo $i; ?>-error" class="error-message">Gender is required.</div>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="row">
+                                    <label for="id-expire-day-<?php echo $i; ?>" style="flex-basis: 100%; margin-bottom: 5px;">Date of Issue</label>
+                                    <div class="col-4">
+                                        <select id="id-issue-day-<?php echo $i; ?>" name="id-issue-day" class="dob-field" required>
+                                            <option value="" selected disabled hidden>DD</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4</option>
+                                            <option value="5">5</option>
+                                            <option value="6">6</option>
+                                            <option value="7">7</option>
+                                            <option value="8">8</option>
+                                            <option value="9">9</option>
+                                            <option value="10">10</option>
+                                            <option value="11">11</option>
+                                            <option value="12">12</option>
+                                            <option value="13">13</option>
+                                            <option value="14">14</option>
+                                            <option value="15">15</option>
+                                            <option value="16">16</option>
+                                            <option value="17">17</option>
+                                            <option value="18">18</option>
+                                            <option value="19">19</option>
+                                            <option value="20">20</option>
+                                            <option value="21">21</option>
+                                            <option value="22">22</option>
+                                            <option value="23">23</option>
+                                            <option value="24">24</option>
+                                            <option value="25">25</option>
+                                            <option value="26">26</option>
+                                            <option value="27">27</option>
+                                            <option value="28">28</option>
+                                            <option value="29">29</option>
+                                            <option value="30">30</option>
+                                            <option value="31">31</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-4">
+                                        <select id="id-issue-month-<?php echo $i; ?>" name="id-issue-month" class="dob-field" required>
+                                            <option value="" selected disabled hidden>MM</option>
+                                            <option value="1">January</option>
+                                            <option value="2">February</option>
+                                            <option value="3">March</option>
+                                            <option value="4">April</option>
+                                            <option value="5">May</option>
+                                            <option value="6">June</option>
+                                            <option value="7">July</option>
+                                            <option value="8">August</option>
+                                            <option value="9">September</option>
+                                            <option value="10">October</option>
+                                            <option value="11">November</option>
+                                            <option value="12">December</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-4">
+                                        <select id="id-issue-year-<?php echo $i; ?>" name="id-issue-year" class="dob-field" required>
+                                            <option value="">YYYY</option>
+                                        </select>
+                                    </div>
+                                    <div id="id-expire-<?php echo $i; ?>-error" class="error-message">Complete ID expiration date is required.</div>
+                                </div>
                             </div>
-                            <div class="form-row">
-                                <label style="display: flex;align-items: end;" for="id-number-<?php echo $i; ?>">Identification Number</label>
-                                <input type="text" id="id-number-<?php echo $i; ?>" name="id-number" required>
-                                <div id="id-number-<?php echo $i; ?>-error" class="error-message">Identification number is required.</div>
-                            </div>
-                            <div class="dob-row">
-                                <label for="id-expire-day-<?php echo $i; ?>" style="flex-basis: 100%; margin-bottom: 5px;">Date of expire</label>
-                                <select id="id-expire-day-<?php echo $i; ?>" name="id-expire-day" class="dob-field" required>
-                                    <option value="" selected disabled hidden>DD</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
-                                    <option value="6">6</option>
-                                    <option value="7">7</option>
-                                    <option value="8">8</option>
-                                    <option value="9">9</option>
-                                    <option value="10">10</option>
-                                    <option value="11">11</option>
-                                    <option value="12">12</option>
-                                    <option value="13">13</option>
-                                    <option value="14">14</option>
-                                    <option value="15">15</option>
-                                    <option value="16">16</option>
-                                    <option value="17">17</option>
-                                    <option value="18">18</option>
-                                    <option value="19">19</option>
-                                    <option value="20">20</option>
-                                    <option value="21">21</option>
-                                    <option value="22">22</option>
-                                    <option value="23">23</option>
-                                    <option value="24">24</option>
-                                    <option value="25">25</option>
-                                    <option value="26">26</option>
-                                    <option value="27">27</option>
-                                    <option value="28">28</option>
-                                    <option value="29">29</option>
-                                    <option value="30">30</option>
-                                    <option value="31">31</option>
-                                </select>
-                                <select id="id-expire-month-<?php echo $i; ?>" name="id-expire-month" class="dob-field" required>
-                                    <option value="" selected disabled hidden>MM</option>
-                                    <option value="1">January</option>
-                                    <option value="2">February</option>
-                                    <option value="3">March</option>
-                                    <option value="4">April</option>
-                                    <option value="5">May</option>
-                                    <option value="6">June</option>
-                                    <option value="7">July</option>
-                                    <option value="8">August</option>
-                                    <option value="9">September</option>
-                                    <option value="10">October</option>
-                                    <option value="11">November</option>
-                                    <option value="12">December</option>
-                                </select>
-                                <select id="id-expire-year-<?php echo $i; ?>" name="id-expire-year" class="dob-field" required>
-                                    <option value="">YYYY</option>
-                                </select>
-                                <div id="id-expire-<?php echo $i; ?>-error" class="error-message">Complete ID expiration date is required.</div>
+                            <div class="col-6">
+                            <div class="row">
+                                    <label for="id-expire-day-<?php echo $i; ?>" style="flex-basis: 100%; margin-bottom: 5px;">Date of expire</label>
+                                    <div class="col-4">
+                                        <select id="id-expire-day-<?php echo $i; ?>" name="id-expire-day" class="dob-field" required>
+                                            <option value="" selected disabled hidden>DD</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4</option>
+                                            <option value="5">5</option>
+                                            <option value="6">6</option>
+                                            <option value="7">7</option>
+                                            <option value="8">8</option>
+                                            <option value="9">9</option>
+                                            <option value="10">10</option>
+                                            <option value="11">11</option>
+                                            <option value="12">12</option>
+                                            <option value="13">13</option>
+                                            <option value="14">14</option>
+                                            <option value="15">15</option>
+                                            <option value="16">16</option>
+                                            <option value="17">17</option>
+                                            <option value="18">18</option>
+                                            <option value="19">19</option>
+                                            <option value="20">20</option>
+                                            <option value="21">21</option>
+                                            <option value="22">22</option>
+                                            <option value="23">23</option>
+                                            <option value="24">24</option>
+                                            <option value="25">25</option>
+                                            <option value="26">26</option>
+                                            <option value="27">27</option>
+                                            <option value="28">28</option>
+                                            <option value="29">29</option>
+                                            <option value="30">30</option>
+                                            <option value="31">31</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-4"> 
+                                        <select id="id-expire-month-<?php echo $i; ?>" name="id-expire-month" class="dob-field" required>
+                                            <option value="" selected disabled hidden>MM</option>
+                                            <option value="1">January</option>
+                                            <option value="2">February</option>
+                                            <option value="3">March</option>
+                                            <option value="4">April</option>
+                                            <option value="5">May</option>
+                                            <option value="6">June</option>
+                                            <option value="7">July</option>
+                                            <option value="8">August</option>
+                                            <option value="9">September</option>
+                                            <option value="10">October</option>
+                                            <option value="11">November</option>
+                                            <option value="12">December</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-4">
+                                        <select id="id-expire-year-<?php echo $i; ?>" name="id-expire-year" class="dob-field" required>
+                                            <option value="">YYYY</option>
+                                        </select>
+                                    </div>
+                                    <div id="id-expire-<?php echo $i; ?>-error" class="error-message">Complete ID expiration date is required.</div>
+                                </div>
                             </div>
                         </div>
                         <div style="display: flex;">
@@ -1580,37 +1761,6 @@ session_start();
         </div>
     </form>
     <script>
-        function logFormValues() {
-            var passengersCount = <?php echo $passengers_count; ?>;
-            for (let i = 0; i < passengersCount; i++) {
-                var title = document.getElementById('title-' + i).value;
-                var firstname = document.getElementById('first-name-' + i).value;
-                var lastname = document.getElementById('last-name-' + i).value;
-                var dobday = document.getElementById('dob-day-' + i).value;
-                var dobmonth = document.getElementById('dob-month-' + i).value;
-                var dobyear = document.getElementById('dob-year-' + i).value;
-                var idmethod = document.getElementById('id-method-' + i).value;
-                var gender = document.getElementById('gender-' + i).value;
-                var idnumber = document.getElementById('id-number-' + i).value;
-                var idexpireday = document.getElementById('id-expire-day-' + i).value;
-                var idexpiremonth = document.getElementById('id-expire-month-' + i).value;
-                var idexpireyear = document.getElementById('id-expire-year-' + i).value;
-                var countryissue = document.getElementById('country-issue-' + i).value;
-                var countrybirth = document.getElementById('country-birth-' + i).value;
-
-                console.log('Passenger ' + (i + 1) + ' Details:');
-                console.log('Title: ' + title);
-                console.log('First Name: ' + firstname);
-                console.log('Last Name: ' + lastname);
-                console.log('Date of Birth: ' + dobday + '/' + dobmonth + '/' + dobyear);
-                console.log('ID Method: ' + idmethod);
-                console.log('Gender: ' + gender);
-                console.log('ID Number: ' + idnumber);
-                console.log('ID Expiry Date: ' + idexpireday + '/' + idexpiremonth + '/' + idexpireyear);
-                console.log('Country of Issue: ' + countryissue);
-                console.log('Country of Birth: ' + countrybirth);
-            }
-        }
         document.addEventListener('DOMContentLoaded', function() {
             // Populate year dropdowns
             function populateYearDropdowns() {
@@ -1618,11 +1768,17 @@ session_start();
 
                 for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
                     const dobYear = document.getElementById('dob-year-' + i);
+                    const idissueyear = document.getElementById('id-issue-year-' + i);
                     const idExpireYear = document.getElementById('id-expire-year-' + i);
 
                     for (let year = currentYear; year >= 1900; year--) {
                         let option = new Option(year, year);
                         dobYear.add(option);
+                    }
+
+                    for (let year = currentYear; year >= 1900; year--) {
+                        let option = new Option(year, year);
+                        idissueyear.add(option);
                     }
 
                     for (let year = currentYear; year <= currentYear + 50; year++) {
