@@ -14,6 +14,19 @@ $formData = $_SESSION['formData'];
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <style>
+        #spinner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            color: #154782;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
         .passenger-form {
             background-color: #f2f2f2;
             border: 1px solid #e5e5e5;
@@ -525,23 +538,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             echo 'cURL Error: ' . curl_error($ch);
         } else {
             // Decode and print the response
-            var_dump($data);
+            // var_dump($data);
             $responseData = json_decode($response, true);
             if(!empty($responseData['orderId'])){
                 $bookingMessage = "Booking successful!";
                 // SQL query
                 $update = "UPDATE `wpk4_backend_travel_booking_pax` 
                 SET `booking_status`='CONFIRMED' 
-                WHERE `traceId` = :traceId";
-
+                WHERE `traceId` = ?";
+            
                 // Prepare statement
-                $stmt = $pdo->prepare($update);
-
+                $stmt = $mysqli->prepare($update);
+            
                 // Bind parameters
-                $stmt->bindParam(':traceId', $traceId);
+                $stmt->bind_param('s', $traceId); // 's' denotes that traceId is a string
                 if($stmt->execute()){
-                    echo "updated";
+                    // echo "updated";
+                }else {
+                    echo "Error: " . $stmt->error;
                 }
+            
+                // Close the statement
+                $stmt->close();
             }
         }
 
@@ -568,7 +586,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // DB connection 
         ?>
 
-    <form action="" method="post" id="passenger-form">
+<div id="spinner" style="display: none;">
+    <div class="spinner-border" role="status" >
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+    <?php if(empty($responseData['orderId'])):?>
+       <div id="main-div">
+       <form action="" method="post" id="passenger-form">
         <div class="passenger-form mb-3">
         <?php
 for ($i = 0; $i < $formData['total']; $i++):
@@ -1759,154 +1784,172 @@ for ($i = 0; $i < $formData['total']; $i++):
                                 
                         </div>
                         <div class="d-flex justify-content-end">
-                            <button style="    background: #ffbb00;width: 20%;font-size: larger;color: #000;font-weight: 700;" class="btn btn-primary" type="submit">Submit -></button>
+                            <button id="submit_btn" style="    background: #ffbb00;width: 20%;font-size: larger;color: #000;font-weight: 700;" class="btn btn-primary" type="submit">Submit -></button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </form>
+       </div>
+    <?php else: ?>
+        <div class="d-grid justify-content-center align-items-center h-100">
+                <h3 class="text-center">Thanks For booking</h3>
+                <p class="text-center">Your Order Id : <?php echo $responseData['orderId']; ?></p>
+                <script>
+                    sessionStorage.removeItem('formData');
+                </script>
+                <?php
+                    unset($_SESSION['formData']);
+                ?>
+            </div>
+    <?php endif; ?>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-    // Populate year dropdowns
-    function populateYearDropdowns() {
-        const currentYear = new Date().getFullYear();
+            // Populate year dropdowns
+            function populateYearDropdowns() {
+                const currentYear = new Date().getFullYear();
 
-        for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
-            const dobYear = document.getElementById('dob-year-' + i);
-            const idissueyear = document.getElementById('id-issue-year-' + i);
-            const idExpireYear = document.getElementById('id-expire-year-' + i);
+                for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
+                    const dobYear = document.getElementById('dob-year-' + i);
+                    const idissueyear = document.getElementById('id-issue-year-' + i);
+                    const idExpireYear = document.getElementById('id-expire-year-' + i);
 
-            for (let year = currentYear; year >= 1900; year--) {
-                let option = new Option(year, year);
-                dobYear.add(option);
+                    for (let year = currentYear; year >= 1900; year--) {
+                        let option = new Option(year, year);
+                        dobYear.add(option);
+                    }
+
+                    for (let year = currentYear; year >= 1900; year--) {
+                        let option = new Option(year, year);
+                        idissueyear.add(option);
+                    }
+
+                    for (let year = currentYear; year <= currentYear + 50; year++) {
+                        let option = new Option(year, year);
+                        idExpireYear.add(option);
+                    }
+                }
             }
 
-            for (let year = currentYear; year >= 1900; year--) {
-                let option = new Option(year, year);
-                idissueyear.add(option);
-            }
+            populateYearDropdowns();
 
-            for (let year = currentYear; year <= currentYear + 50; year++) {
-                let option = new Option(year, year);
-                idExpireYear.add(option);
-            }
-        }
-    }
+            // Validate fields on input
+            const requiredFields = [
+                'title', 'first-name', 'last-name',
+                'dob-day', 'dob-month', 'dob-year',
+                'id-method', 'id-number',
+                'id-expire-day', 'id-expire-month', 'id-expire-year',
+                'country-issue', 'country-birth', 'phone-number', 'city',
+                'zip-code', 'street'
+            ];
 
-    populateYearDropdowns();
-
-    // Validate fields on input
-    const requiredFields = [
-        'title', 'first-name', 'last-name',
-        'dob-day', 'dob-month', 'dob-year',
-        'id-method', 'id-number',
-        'id-expire-day', 'id-expire-month', 'id-expire-year',
-        'country-issue', 'country-birth', 'phone-number', 'city',
-        'zip-code', 'street'
-    ];
-
-    for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
-        requiredFields.forEach(function(field) {
-            const input = document.getElementById(field + '-' + i);
-            if (input) {
-                input.addEventListener('input', function() {
-                    validateField(input);
+            for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
+                requiredFields.forEach(function(field) {
+                    const input = document.getElementById(field + '-' + i);
+                    if (input) {
+                        input.addEventListener('input', function() {
+                            validateField(input);
+                        });
+                    }
                 });
             }
-        });
-    }
 
-    function validateField(input) {
-        const errorElement = document.getElementById(input.id + '-error');
-        if (input.value === '' || input.value === null) {
-            showError(input, errorElement, 'This field is required.');
-        } else if ((input.id.includes('first-name') || input.id.includes('last-name') || input.id.includes('city') || input.id.includes('street')) && /\d/.test(input.value)) {
-            showError(input, errorElement, 'This field should not contain numbers.');
-        } else if ((input.id.includes('id-number') || input.id.includes('zip-code') || input.id.includes('phone-number') || input.id.includes('emergency_phone-number')) && /\D/.test(input.value)) {
-            showError(input, errorElement, 'This field should only contain numbers.');
-        } else {
-            hideError(input, errorElement);
-        }
-    }
-
-    function showError(input, errorElement, message) {
-        input.style.border = 'red 2px solid';
-        errorElement.textContent = message;
-        errorElement.style.display = 'block';
-    }
-
-    function hideError(input, errorElement) {
-        input.style.border = '';
-        errorElement.style.display = 'none';
-    }
-
-    function toggleRequiredAttributes(index, shouldShare) {
-        const emergencyFields = [
-            'emergency_country', 'emergency_phone-number', 'emergency_email-address'
-        ];
-
-        emergencyFields.forEach(function(field) {
-            const input = document.getElementById(field + '-' + index);
-            if (input) {
-                if (shouldShare) {
-                    input.setAttribute('required', 'required');
-                } else {
-                    input.removeAttribute('required');
-                }
-            }
-        });
-    }
-
-    // Validate form on submit
-    document.getElementById('passenger-form').addEventListener('submit', function(event) {
-        let valid = true;
-
-        for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
-            requiredFields.forEach(function(field) {
-                const input = document.getElementById(field + '-' + i);
-                const errorElement = document.getElementById(field + '-' + i + '-error');
-
-                if (input && (input.value === '' || input.value === null)) {
+            function validateField(input) {
+                const errorElement = document.getElementById(input.id + '-error');
+                if (input.value === '' || input.value === null) {
                     showError(input, errorElement, 'This field is required.');
-                    valid = false;
-                } else if (input && (input.id.includes('first-name') || input.id.includes('last-name') || input.id.includes('city') || input.id.includes('street')) && /\d/.test(input.value)) {
+                } else if ((input.id.includes('first-name') || input.id.includes('last-name') || input.id.includes('city') || input.id.includes('street')) && /\d/.test(input.value)) {
                     showError(input, errorElement, 'This field should not contain numbers.');
-                    valid = false;
-                } else if (input && (input.id.includes('id-number') || input.id.includes('zip-code') || input.id.includes('phone-number') || input.id.includes('emergency_phone-number')) && /\D/.test(input.value)) {
+                } else if ((input.id.includes('id-number') || input.id.includes('zip-code') || input.id.includes('phone-number') || input.id.includes('emergency_phone-number')) && /\D/.test(input.value)) {
                     showError(input, errorElement, 'This field should only contain numbers.');
-                    valid = false;
-                } else if (input) {
+                } else {
                     hideError(input, errorElement);
                 }
+            }
+
+            function showError(input, errorElement, message) {
+                input.style.border = 'red 2px solid';
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+
+            function hideError(input, errorElement) {
+                input.style.border = '';
+                errorElement.style.display = 'none';
+            }
+
+            function toggleRequiredAttributes(index, shouldShare) {
+                const emergencyFields = [
+                    'emergency_country', 'emergency_phone-number', 'emergency_email-address'
+                ];
+
+                emergencyFields.forEach(function(field) {
+                    const input = document.getElementById(field + '-' + index);
+                    if (input) {
+                        if (shouldShare) {
+                            input.setAttribute('required', 'required');
+                        } else {
+                            input.removeAttribute('required');
+                        }
+                    }
+                });
+            }
+
+            // Validate form on submit
+            document.getElementById('passenger-form').addEventListener('submit', function(event) {
+                let valid = true;
+
+                for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
+                    requiredFields.forEach(function(field) {
+                        const input = document.getElementById(field + '-' + i);
+                        const errorElement = document.getElementById(field + '-' + i + '-error');
+
+                        if (input && (input.value === '' || input.value === null)) {
+                            showError(input, errorElement, 'This field is required.');
+                            valid = false;
+                        } else if (input && (input.id.includes('first-name') || input.id.includes('last-name') || input.id.includes('city') || input.id.includes('street')) && /\d/.test(input.value)) {
+                            showError(input, errorElement, 'This field should not contain numbers.');
+                            valid = false;
+                        } else if (input && (input.id.includes('id-number') || input.id.includes('zip-code') || input.id.includes('phone-number') || input.id.includes('emergency_phone-number')) && /\D/.test(input.value)) {
+                            showError(input, errorElement, 'This field should only contain numbers.');
+                            valid = false;
+                        } else if (input) {
+                            hideError(input, errorElement);
+                        }
+                    });
+                }
+
+                if (!valid) {
+                    event.preventDefault(); // Prevent form submission if not valid
+                }
             });
-        }
 
-        if (!valid) {
-            event.preventDefault(); // Prevent form submission if not valid
-        }
-    });
+            function toggleDropdown(index) {
+                const shouldShare = $('#share-' + index).is(':checked');
+                if (shouldShare) {
+                    $('#contact-details-' + index).removeClass('hidden');
+                } else {
+                    $('#contact-details-' + index).addClass('hidden');
+                }
+                toggleRequiredAttributes(index, shouldShare);
+            }
 
-    function toggleDropdown(index) {
-        const shouldShare = $('#share-' + index).is(':checked');
-        if (shouldShare) {
-            $('#contact-details-' + index).removeClass('hidden');
-        } else {
-            $('#contact-details-' + index).addClass('hidden');
-        }
-        toggleRequiredAttributes(index, shouldShare);
-    }
-
-    $(document).ready(function() {
-        for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
-            toggleDropdown(i);
-            $('input[name="emergency_contact_' + i + '"]').on('change', function() {
-                toggleDropdown(i);
+            $(document).ready(function() {
+                for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
+                    toggleDropdown(i);
+                    $('input[name="emergency_contact_' + i + '"]').on('change', function() {
+                        toggleDropdown(i);
+                    });
+                }
             });
-        }
-    });
-});
-        
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('passenger-form');
+            form.addEventListener('submit', function() {
+                document.getElementById('spinner').style.display = 'flex';
+            });
+        });
     </script>
 </body>
 
