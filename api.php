@@ -41,10 +41,10 @@ function getToken(){
         } else {
             curl_close($ch);
             $token = $data['access_token'];
-            $cookie_name = "token";
-            $cookie_value = $token;
-            $cookie_expiration = time() + 604800;
-            setcookie($cookie_name, $cookie_value, $cookie_expiration, "/");
+            // $cookie_name = "token";
+            // $cookie_value = $token;
+            // $cookie_expiration = time() + 604800;
+            // setcookie($cookie_name, $cookie_value, $cookie_expiration, "/");
             return $token;
         }
     }

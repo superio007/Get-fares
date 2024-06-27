@@ -1,0 +1,49 @@
+{
+    "traceId": "f43d7b46-d3b5-4a79-87e8-16ce43832bc9",
+    "gstDetails": {
+        "address1": "",
+        "address2": "",
+        "city": "",
+        "state": "",
+        "pinCode": "",
+        "email": "",
+        "gstNumber": "",
+        "gstPhoneNo": "",
+        "gstCompanyName": ""
+    },
+    "purchaseIds": [
+        "638548803479658690"
+    ],
+    "passengers": [
+        {
+            "title": "Mrs",
+            "firstName": "Kiran",
+            "lastName": "dhoke",
+            "email": "dhokekiran88@gmail.com",
+            "dob": "1991-01-01T15:43:15.677Z",
+            "genderType": "M",
+            "areaCode": "",
+            "ffNumber": "",
+            "paxType": "ADT",
+            "mobile": "08097972852",
+            "passportNumber": "12105",
+            "passengerNationality": "MH",
+            "passportDOI": "2000-07-07T15:43:15.677Z",
+            "passportDOE": "2025-07-07T15:43:15.677Z",
+            "passportIssuedCountry": "IN",
+            "seatPref": "N",
+            "mealPref": "",
+            "ktn": "",
+            "redressNo": ""
+        }
+    ],
+    "address": {
+        "addressName": "shastri nagar",
+        "street": "vaman bhaskar koli chawl r",
+        "state": "Maharashtra",
+        "postalCode": "400606",
+        "countryName": "IN",
+        "countryCode": "India",
+        "city": "Thane"
+    }
+}
