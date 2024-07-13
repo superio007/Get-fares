@@ -1,0 +1,222 @@
+{
+    "response": {
+      "traceId": "60d011fb-a8b4-436b-a9ab-a3adba6a75e9",
+      "flights": [
+        {
+          "airline": "6E",
+          "adtNum": 1,
+          "chdNum": 0,
+          "infNum": 0,
+          "isFareChange": null,
+          "clientId": 0,
+          "segGroups": [
+            {
+              "origin": "BOM",
+              "destination": "DEL",
+              "departureOn": "2024-07-17T03:00:00",
+              "segs": [
+                {
+                  "isReturn": null,
+                  "origin": "BOM",
+                  "destination": "DEL",
+                  "departureOn": "2024-07-17T03:00:00",
+                  "arrivalOn": "2024-07-17T05:10:00",
+                  "duration": 130,
+                  "flightNum": "6E2236",
+                  "eqpType": "321",
+                  "mrkAirline": "6E",
+                  "depTerminal": "2",
+                  "arrTerminal": "2",
+                  "opAirline": null
+                }
+              ]
+            }
+          ],
+          "currency": "USD",
+          "fareGroups": [
+            {
+              "purchaseId": 638564501937782218,
+              "refundable": 1,
+              "totalAmount": 0,
+              "fareType": "Publish",
+              "priceClass": "Economy",
+              "pricedDescription": [],
+              "fares": [
+                {
+                  "paxType": "ADT",
+                  "base": 23.11,
+                  "taxes": [
+                    {
+                      "amt": 4.61,
+                      "code": "Tax"
+                    }
+                  ]
+                }
+              ],
+              "grossFare": 0,
+              "clientMarkup": 0,
+              "netFare": 0,
+              "baggages": [
+                {
+                  "paxType": "ADT",
+                  "checkInBag": "15KG , size:L+W+H<=158cm",
+                  "cabinBag": "7KG , size:55*35*25cm",
+                  "cityPair": "BOMDEL"
+                }
+              ],
+              "miniRules": [
+                {
+                  "changeAllowed": null,
+                  "cancelAllowed": 1,
+                  "canAmt": 6,
+                  "exgAmt": 0,
+                  "paxType": "ADT",
+                  "apply": "Before",
+                  "remarks": "BOMDEL - 4 days to 365 days from departure"
+                },
+                {
+                  "changeAllowed": null,
+                  "cancelAllowed": 1,
+                  "canAmt": 42,
+                  "exgAmt": 0,
+                  "paxType": "ADT",
+                  "apply": "Before",
+                  "remarks": "BOMDEL - 3 hrs to 4 days from departure"
+                },
+                {
+                  "changeAllowed": 1,
+                  "cancelAllowed": null,
+                  "canAmt": 0,
+                  "exgAmt": 39,
+                  "paxType": "ADT",
+                  "apply": "Before",
+                  "remarks": "BOMDEL - 3 hrs to 4 days from departure"
+                }
+              ],
+              "segInfos": [
+                {
+                  "cityPair": "BOMDEL",
+                  "rbd": "J",
+                  "cabinClass": "Economy",
+                  "seatRemaining": 2
+                }
+              ]
+            }
+          ],
+          "additionalServices": [
+            {
+              "additionalServiceType": "Baggage",
+              "additionalServiceFeeType": "None",
+              "flightFares": [
+                {
+                  "amount": 31.16,
+                  "fareTag": "Misc"
+                }
+              ],
+              "currencyCode": "USD",
+              "serviceDescription": "3Kg",
+              "cityPair": "BOMDEL",
+              "freeText": "SCI_BAG_3KG&1_BOMDEL",
+              "paxType": "None"
+            },
+            {
+              "additionalServiceType": "Baggage",
+              "additionalServiceFeeType": "None",
+              "flightFares": [
+                {
+                  "amount": 35.71,
+                  "fareTag": "Misc"
+                }
+              ],
+              "currencyCode": "USD",
+              "serviceDescription": "5Kg",
+              "cityPair": "BOMDEL",
+              "freeText": "SCI_BAG_5KG&1_BOMDEL",
+              "paxType": "None"
+            },
+            {
+              "additionalServiceType": "Baggage",
+              "additionalServiceFeeType": "None",
+              "flightFares": [
+                {
+                  "amount": 118.18,
+                  "fareTag": "Misc"
+                }
+              ],
+              "currencyCode": "USD",
+              "serviceDescription": "10Kg",
+              "cityPair": "BOMDEL",
+              "freeText": "SCI_BAG_10KG&1_BOMDEL",
+              "paxType": "None"
+            },
+            {
+              "additionalServiceType": "Baggage",
+              "additionalServiceFeeType": "None",
+              "flightFares": [
+                {
+                  "amount": 130.32,
+                  "fareTag": "Misc"
+                }
+              ],
+              "currencyCode": "USD",
+              "serviceDescription": "15Kg",
+              "cityPair": "BOMDEL",
+              "freeText": "SCI_BAG_15KG&1_BOMDEL",
+              "paxType": "None"
+            },
+            {
+              "additionalServiceType": "Baggage",
+              "additionalServiceFeeType": "None",
+              "flightFares": [
+                {
+                  "amount": 93.47,
+                  "fareTag": "Misc"
+                }
+              ],
+              "currencyCode": "USD",
+              "serviceDescription": "20Kg",
+              "cityPair": "BOMDEL",
+              "freeText": "SCI_BAG_20KG&1_BOMDEL",
+              "paxType": "None"
+            },
+            {
+              "additionalServiceType": "Baggage",
+              "additionalServiceFeeType": "None",
+              "flightFares": [
+                {
+                  "amount": 176.32,
+                  "fareTag": "Misc"
+                }
+              ],
+              "currencyCode": "USD",
+              "serviceDescription": "30Kg",
+              "cityPair": "BOMDEL",
+              "freeText": "SCI_BAG_30KG&1_BOMDEL",
+              "paxType": "None"
+            }
+          ],
+          "content": "GDS",
+          "vendor": "AT",
+          "passThrough": null,
+          "isHold": null
+        }
+      ],
+      "passengerRequiredFields": [
+        {
+          "paxType": "ADT",
+          "email": 1,
+          "dob": null,
+          "gender": null,
+          "areaCode": null,
+          "mobile": 1,
+          "passportNumber": 1,
+          "passengerNationality": 1,
+          "passportDOI": null,
+          "passportDOE": 1,
+          "passportIssuedCountry": 1,
+          "address_CountryCode": null
+        }
+      ]
+    }
+  }
+  

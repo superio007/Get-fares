@@ -12,8 +12,8 @@ function getToken(){
         $data = [
             'grant_type' => 'client_credentials',
             'scope' => 'FlightEngine',
-            'client_id' => 'test.client',
-            'client_secret' => 'test.client@4321'
+            'client_id' => 'clientid.gauratravels',
+            'client_secret' => '#$0u6@tr@v315*'
         ];
 
         // Convert data array to x-www-form-urlencoded format

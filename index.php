@@ -163,6 +163,9 @@ session_start();
                 // Check if the responseData has the 'flights' key and 'isFareChange' key within it
                 if (isset($responseData['flights'][0]['isFareChange']) && !$responseData['flights'][0]['isFareChange']) {
                     // Redirect to book.php with the required parameters
+                    $_SESSION['responseData'] = [
+                        'response' => $responseData,
+                    ];
                     header("Location: book.php?traceId=$traceId&purchaseId=$purchaseId");
                     exit(); // Make sure to call exit after redirect
                 } else {
@@ -417,7 +420,7 @@ session_start();
                                     <div class="price">
                                         <?php
                                         $baseFare = $flight['fareGroups'][0]['fares'][0]['base'];
-                                        echo number_format($baseFare, 2) . " INR";
+                                        echo "$" . number_format($baseFare, 2) ;
                                         ?>
                                         <input type="text" name="traceId" id="traceId" value="<?php echo  $responseData['traceId']?>" hidden>
                                     </div>
