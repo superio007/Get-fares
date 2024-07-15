@@ -4,6 +4,8 @@ $formData = $_SESSION['formData'];
 // var_dump($formData);
 $responseData = $_SESSION['responseData'];
 // print_r($responseData);
+$bagageData = $_SESSION['baggage'];
+var_dump($bagageData);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -265,340 +267,351 @@ $responseData = $_SESSION['responseData'];
 
 <body>
     <?php
-    require 'api.php';
-    $token = getToken();
-    $db_host = 'localhost';
-    $db_user = 'root';
-    $db_pass = '';
-    $db_name = 'test';
+        require 'api.php';
+        // require 'managebagage.php';
+        $token = getToken();
+        $db_host = 'localhost';
+        $db_user = 'root';
+        $db_pass = '';
+        $db_name = 'test';
 
-    // Create connection
-    $mysqli = new mysqli($db_host, $db_user, $db_pass, $db_name);
+        // Create connection
+        $mysqli = new mysqli($db_host, $db_user, $db_pass, $db_name);
 
-    // Check connection
-    if ($mysqli->connect_error) {
-        die("Connection failed: " . $mysqli->connect_error);
-    }
-
-    $traceId = $_GET['traceId'];
-    $purchaseId = $_GET['purchaseId'];
-
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        $errors = [];
-
-        // Validation functions
-        function validate_required($field, $value)
-        {
-            global $errors;
-            if (empty($value)) {
-                $errors[$field] = ucfirst(str_replace('-', ' ', $field)) . ' is required.';
-            }
+        // Check connection
+        if ($mysqli->connect_error) {
+            die("Connection failed: " . $mysqli->connect_error);
         }
 
-        function validate_date($day, $month, $year, $field_name)
-        {
-            global $errors;
-            if (!checkdate((int)$month, (int)$day, (int)$year)) {
-                $errors[$field_name] = 'Invalid date for ' . str_replace('-', ' ', $field_name) . '.';
+        $traceId = $_GET['traceId'];
+        $purchaseId = $_GET['purchaseId'];
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $errors = [];
+
+            // Validation functions
+            function validate_required($field, $value)
+            {
+                global $errors;
+                if (empty($value)) {
+                    $errors[$field] = ucfirst(str_replace('-', ' ', $field)) . ' is required.';
+                }
             }
-        }
 
-        // Fetch and validate inputs
-        $titles = $_POST['title'];
-        $first_names = $_POST['first-name'];
-        $last_names = $_POST['last-name'];
-        $agentsids = $_POST['agents-id'];
-        $emailaddress = $_POST['email-address'];
-        $phonenumber = $_POST['phone-number'];
-        $country = $_POST['country'];
-        $city = $_POST['city'];
-        $zipcode = $_POST['zip-code'];
-        $address = $_POST['Address'];
-        $street = $_POST['street'];
-        $dob_days = $_POST['dob-day'];
-        $dob_months = $_POST['dob-month'];
-        $dob_years = $_POST['dob-year'];
-        $id_methods = $_POST['id-method'];
-        $genders = $_POST['gender'];
-        $id_numbers = $_POST['id-number'];
-        $state = $_POST['State'];
-        $country_code = $_POST['country-code'];
-        $id_expire_days = $_POST['id-expire-day'];
-        $id_expire_months = $_POST['id-expire-month'];
-        $id_expire_years = $_POST['id-expire-year'];
-        $id_issue_days = $_POST['id-issue-day'];
-        $id_issue_months = $_POST['id-issue-month'];
-        $id_issue_years = $_POST['id-issue-year'];
-        $country_issues = $_POST['country-issue'];
-        $country_births = $_POST['country-birth'];
-        $paxTypes = $_POST['paxType'];
-
-        // Validate shared fields once
-        validate_required('email-address', $emailaddress);
-        validate_required('phone-number', $phonenumber);
-        validate_required('country', $country);
-        validate_required('city', $city);
-        validate_required('zip-code', $zipcode);
-        validate_required('Address', $address);
-        validate_required('street', $street);
-        validate_required('State', $state);
-        validate_required('country-code', $country_code);
-
-        // Iterate over each passenger and validate their data
-        foreach ($titles as $index => $title) {
-            validate_required("title[$index]", $title);
-            validate_required("first-name[$index]", $first_names[$index]);
-            validate_required("last-name[$index]", $last_names[$index]);
-            validate_required("agents-id[$index]", $agentsids[$index]);
-            validate_required("dob-day[$index]", $dob_days[$index]);
-            validate_required("dob-month[$index]", $dob_months[$index]);
-            validate_required("dob-year[$index]", $dob_years[$index]);
-            if (!isset($errors["dob-day[$index]"]) && !isset($errors["dob-month[$index]"]) && !isset($errors["dob-year[$index]"])) {
-                validate_date($dob_days[$index], $dob_months[$index], $dob_years[$index], "date of birth[$index]");
+            function validate_date($day, $month, $year, $field_name)
+            {
+                global $errors;
+                if (!checkdate((int)$month, (int)$day, (int)$year)) {
+                    $errors[$field_name] = 'Invalid date for ' . str_replace('-', ' ', $field_name) . '.';
+                }
             }
-            validate_required("id-method[$index]", $id_methods[$index]);
-            validate_required("gender[$index]", $genders[$index]);
-            validate_required("id-number[$index]", $id_numbers[$index]);
-            validate_required("id-expire-day[$index]", $id_expire_days[$index]);
-            validate_required("id-expire-month[$index]", $id_expire_months[$index]);
-            validate_required("id-expire-year[$index]", $id_expire_years[$index]);
-            if (!isset($errors["id-expire-day[$index]"]) && !isset($errors["id-expire-month[$index]"]) && !isset($errors["id-expire-year[$index]"])) {
-                validate_date($id_expire_days[$index], $id_expire_months[$index], $id_expire_years[$index], "ID expire date[$index]");
-            }
-            validate_required("id-issue-day[$index]", $id_issue_days[$index]);
-            validate_required("id-issue-month[$index]", $id_issue_months[$index]);
-            validate_required("id-issue-year[$index]", $id_issue_years[$index]);
-            if (!isset($errors["id-issue-day[$index]"]) && !isset($errors["id-issue-month[$index]"]) && !isset($errors["id-issue-year[$index]"])) {
-                validate_date($id_issue_days[$index], $id_issue_months[$index], $id_issue_years[$index], "ID issue date[$index]");
-            }
-            validate_required("country-issue[$index]", $country_issues[$index]);
-            validate_required("country-birth[$index]", $country_births[$index]);
-            validate_required("paxType[$index]", $paxTypes[$index]);
-        }
-        $book_status = "Processing";
-        $bookingMessage = "";
 
-        if (empty($errors)) {
-            $stmt = $mysqli->prepare("INSERT INTO wpk4_backend_travel_booking_pax (traceId, purchaseid, booking_status,salutation, fname, lname, email, gender, dob, paxType, mobile_no, passportNumber, passportDOI, passportDOE, passportIssuedCountry, seatPref, addressName, street, AddresState, postalCode, countryName, countryCode, city, passengerNationality) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?)");
+            // Fetch and validate inputs
+            $titles = $_POST['title'];
+            $first_names = $_POST['first-name'];
+            $last_names = $_POST['last-name'];
+            $agentsids = $_POST['agents-id'];
+            $emailaddress = $_POST['email-address'];
+            $phonenumber = $_POST['phone-number'];
+            $country = $_POST['country'];
+            $city = $_POST['city'];
+            $zipcode = $_POST['zip-code'];
+            $address = $_POST['Address'];
+            $street = $_POST['street'];
+            $dob_days = $_POST['dob-day'];
+            $dob_months = $_POST['dob-month'];
+            $dob_years = $_POST['dob-year'];
+            $id_methods = $_POST['id-method'];
+            $genders = $_POST['gender'];
+            $id_numbers = $_POST['id-number'];
+            $state = $_POST['State'];
+            $country_code = $_POST['country-code'];
+            $id_expire_days = $_POST['id-expire-day'];
+            $id_expire_months = $_POST['id-expire-month'];
+            $id_expire_years = $_POST['id-expire-year'];
+            $id_issue_days = $_POST['id-issue-day'];
+            $id_issue_months = $_POST['id-issue-month'];
+            $id_issue_years = $_POST['id-issue-year'];
+            $country_issues = $_POST['country-issue'];
+            $country_births = $_POST['country-birth'];
+            $paxTypes = $_POST['paxType'];
 
-            // Iterate over each passenger and insert their data
+            // Validate shared fields once
+            validate_required('email-address', $emailaddress);
+            validate_required('phone-number', $phonenumber);
+            validate_required('country', $country);
+            validate_required('city', $city);
+            validate_required('zip-code', $zipcode);
+            validate_required('Address', $address);
+            validate_required('street', $street);
+            validate_required('State', $state);
+            validate_required('country-code', $country_code);
+
+            // Iterate over each passenger and validate their data
             foreach ($titles as $index => $title) {
-                $first_name = $first_names[$index];
-                $last_name = $last_names[$index];
-                $agentsid = $agentsids[$index];
-                $dob_day = $dob_days[$index];
-                $dob_month = $dob_months[$index];
-                $dob_year = $dob_years[$index];
-                $id_method = $id_methods[$index];
-                $gender = $genders[$index];
-                $id_number = $id_numbers[$index];
-                $id_expire_day = $id_expire_days[$index];
-                $id_expire_month = $id_expire_months[$index];
-                $id_expire_year = $id_expire_years[$index];
-                $id_issue_day = $id_issue_days[$index];
-                $id_issue_month = $id_issue_months[$index];
-                $id_issue_year = $id_issue_years[$index];
-                $country_issue = $country_issues[$index];
-                $country_birth = $country_births[$index];
-                $paxType = $paxTypes[$index];
-
-                $dob = $dob_year . '-' . str_pad($dob_month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($dob_day, 2, '0', STR_PAD_LEFT);
-                $idissueDate = $id_issue_year . '-' . str_pad($id_issue_month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($id_issue_day, 2, '0', STR_PAD_LEFT);
-                $idexpireDate = $id_expire_year . '-' . str_pad($id_expire_month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($id_expire_day, 2, '0', STR_PAD_LEFT);
-                $seatref = "N";
-
-                $stmt->bind_param(
-                    "ssssssssssssssssssssssss",
-                    $traceId,
-                    $purchaseId,
-                    $book_status,
-                    $title,
-                    $first_name,
-                    $last_name,
-                    $emailaddress,
-                    $gender,
-                    $dob,
-                    $paxType,
-                    $phonenumber,
-                    $id_number,
-                    $idissueDate,
-                    $idexpireDate,
-                    $country_issue,
-                    $seatref,
-                    $address,
-                    $street,
-                    $state,
-                    $zipcode,
-                    $country,
-                    $country_code,
-                    $city,
-                    $country_birth
-                );
-
-                // Execute the statement
-                if (!$stmt->execute()) {
-                    echo "Error: " . $stmt->error;
+                validate_required("title[$index]", $title);
+                validate_required("first-name[$index]", $first_names[$index]);
+                validate_required("last-name[$index]", $last_names[$index]);
+                validate_required("agents-id[$index]", $agentsids[$index]);
+                validate_required("dob-day[$index]", $dob_days[$index]);
+                validate_required("dob-month[$index]", $dob_months[$index]);
+                validate_required("dob-year[$index]", $dob_years[$index]);
+                if (!isset($errors["dob-day[$index]"]) && !isset($errors["dob-month[$index]"]) && !isset($errors["dob-year[$index]"])) {
+                    validate_date($dob_days[$index], $dob_months[$index], $dob_years[$index], "date of birth[$index]");
                 }
-            }
-
-            echo "All records created successfully";
-
-            // Close the statement
-            $stmt->close();
-
-            // Fetch all passengers for the traceId
-            $storequery = $mysqli->prepare("SELECT * FROM `wpk4_backend_travel_booking_pax` WHERE traceId = ?");
-            $storequery->bind_param("s", $traceId);
-            $storequery->execute();
-            $result = $storequery->get_result();
-
-            // Fetch the results into an associative array
-            $results = [];
-            while ($row = $result->fetch_assoc()) {
-                $results[] = $row;
-            }
-
-            $passengers = [];
-            foreach ($results as $result) {
-                $paxType = $result['paxType'];
-                if ($paxType == 'Adult') {
-                    $paxType = "ADT";
-                } elseif ($paxType == 'Child') {
-                    $paxType = "CHD";
-                } else {
-                    $paxType = "INF";
+                validate_required("id-method[$index]", $id_methods[$index]);
+                validate_required("gender[$index]", $genders[$index]);
+                validate_required("id-number[$index]", $id_numbers[$index]);
+                validate_required("id-expire-day[$index]", $id_expire_days[$index]);
+                validate_required("id-expire-month[$index]", $id_expire_months[$index]);
+                validate_required("id-expire-year[$index]", $id_expire_years[$index]);
+                if (!isset($errors["id-expire-day[$index]"]) && !isset($errors["id-expire-month[$index]"]) && !isset($errors["id-expire-year[$index]"])) {
+                    validate_date($id_expire_days[$index], $id_expire_months[$index], $id_expire_years[$index], "ID expire date[$index]");
                 }
-
-                $passengers[] = [
-                    "title" => $result['salutation'],
-                    "firstName" => $result['fname'],
-                    "lastName" => $result['lname'],
-                    "email" => $result['email'],
-                    "dob" => $result['dob'] . "T15:43:15.677Z",
-                    "genderType" => $result['gender'],
-                    "areaCode" => "",
-                    "ffNumber" => "",
-                    "paxType" => $paxType,
-                    "mobile" => (string)$result['mobile_no'],
-                    "passportNumber" => $result['passportNumber'],
-                    "passengerNationality" => $result['passengerNationality'],
-                    "passportDOI" => $result['passportDOI'] . "T15:43:15.677Z",
-                    "passportDOE" => $result['passportDOE'] . "T15:43:15.677Z",
-                    "passportIssuedCountry" => $result['passportIssuedCountry'],
-                    "seatPref" => $result['seatPref'],
-                    "mealPref" => "",
-                    "ktn" => "",
-                    "redressNo" => ""
-                ];
+                validate_required("id-issue-day[$index]", $id_issue_days[$index]);
+                validate_required("id-issue-month[$index]", $id_issue_months[$index]);
+                validate_required("id-issue-year[$index]", $id_issue_years[$index]);
+                if (!isset($errors["id-issue-day[$index]"]) && !isset($errors["id-issue-month[$index]"]) && !isset($errors["id-issue-year[$index]"])) {
+                    validate_date($id_issue_days[$index], $id_issue_months[$index], $id_issue_years[$index], "ID issue date[$index]");
+                }
+                validate_required("country-issue[$index]", $country_issues[$index]);
+                validate_required("country-birth[$index]", $country_births[$index]);
+                validate_required("paxType[$index]", $paxTypes[$index]);
             }
-            $url = 'https://sandboxapi.getfares.com/Flights/Booking/CreatePNR/v1';
-            $data = [
-                "traceId" => $traceId,
-                "gstDetails" => [
-                    "address1" => "",
-                    "address2" => "",
-                    "city" => "",
-                    "state" => "",
-                    "pinCode" => "",
-                    "email" => "",
-                    "gstNumber" => "",
-                    "gstPhoneNo" => "",
-                    "gstCompanyName" => ""
-                ],
-                "purchaseIds" => [
-                    $purchaseId
-                ],
-                "passengers" => $passengers,
-                "address" => [
-                    "addressName" => $address, // Assuming all passengers have the same address
-                    "street" => $street,
-                    "state" => $state,
-                    "postalCode" => $zipcode,
-                    "countryName" => $country,
-                    "countryCode" => $country_code,
-                    "city" => $city
-                ]
-            ];
+            $book_status = "Processing";
+            $bookingMessage = "";
 
-            // Convert data array to JSON format
-            $jsonData = json_encode($data);
+            if (empty($errors)) {
+                $stmt = $mysqli->prepare("INSERT INTO wpk4_backend_travel_booking_pax (traceId, purchaseid, booking_status,salutation, fname, lname, email, gender, dob, paxType, mobile_no, passportNumber, passportDOI, passportDOE, passportIssuedCountry, seatPref, addressName, street, AddresState, postalCode, countryName, countryCode, city, passengerNationality) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?)");
 
-            // Initialize cURL session
-            $ch = curl_init();
+                // Iterate over each passenger and insert their data
+                foreach ($titles as $index => $title) {
+                    $first_name = $first_names[$index];
+                    $last_name = $last_names[$index];
+                    $agentsid = $agentsids[$index];
+                    $dob_day = $dob_days[$index];
+                    $dob_month = $dob_months[$index];
+                    $dob_year = $dob_years[$index];
+                    $id_method = $id_methods[$index];
+                    $gender = $genders[$index];
+                    $id_number = $id_numbers[$index];
+                    $id_expire_day = $id_expire_days[$index];
+                    $id_expire_month = $id_expire_months[$index];
+                    $id_expire_year = $id_expire_years[$index];
+                    $id_issue_day = $id_issue_days[$index];
+                    $id_issue_month = $id_issue_months[$index];
+                    $id_issue_year = $id_issue_years[$index];
+                    $country_issue = $country_issues[$index];
+                    $country_birth = $country_births[$index];
+                    $paxType = $paxTypes[$index];
 
-            // var_dump($jsonData);
+                    $dob = $dob_year . '-' . str_pad($dob_month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($dob_day, 2, '0', STR_PAD_LEFT);
+                    $idissueDate = $id_issue_year . '-' . str_pad($id_issue_month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($id_issue_day, 2, '0', STR_PAD_LEFT);
+                    $idexpireDate = $id_expire_year . '-' . str_pad($id_expire_month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($id_expire_day, 2, '0', STR_PAD_LEFT);
+                    $seatref = "N";
 
-            // Set the URL and other options for the cURL session
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                "Authorization: Bearer $token"
-            ]);
+                    $stmt->bind_param(
+                        "ssssssssssssssssssssssss",
+                        $traceId,
+                        $purchaseId,
+                        $book_status,
+                        $title,
+                        $first_name,
+                        $last_name,
+                        $emailaddress,
+                        $gender,
+                        $dob,
+                        $paxType,
+                        $phonenumber,
+                        $id_number,
+                        $idissueDate,
+                        $idexpireDate,
+                        $country_issue,
+                        $seatref,
+                        $address,
+                        $street,
+                        $state,
+                        $zipcode,
+                        $country,
+                        $country_code,
+                        $city,
+                        $country_birth
+                    );
 
-            // Execute the cURL session and fetch the response
-            $response = curl_exec($ch);
-
-            // Check for errors
-            if ($response === false) {
-                echo 'cURL Error: ' . curl_error($ch);
-            } else {
-                // Decode and print the response
-                // var_dump($data);
-                $responseData = json_decode($response, true);
-                if (!empty($responseData['orderId'])) {
-                    $bookingMessage = "Booking successful!";
-                    // SQL query
-                    $update = "UPDATE `wpk4_backend_travel_booking_pax` 
-                SET `booking_status`='CONFIRMED' 
-                WHERE `traceId` = ?";
-
-                    // Prepare statement
-                    $stmt = $mysqli->prepare($update);
-
-                    // Bind parameters
-                    $stmt->bind_param('s', $traceId); // 's' denotes that traceId is a string
-                    if ($stmt->execute()) {
-                        // echo "updated";
-                    } else {
+                    // Execute the statement
+                    if (!$stmt->execute()) {
                         echo "Error: " . $stmt->error;
                     }
+                }
 
-                    // Close the statement
-                    $stmt->close();
+                echo "All records created successfully";
+
+                // Close the statement
+                $stmt->close();
+
+                // Fetch all passengers for the traceId
+                $storequery = $mysqli->prepare("SELECT * FROM `wpk4_backend_travel_booking_pax` WHERE traceId = ?");
+                $storequery->bind_param("s", $traceId);
+                $storequery->execute();
+                $result = $storequery->get_result();
+
+                // Fetch the results into an associative array
+                $results = [];
+                while ($row = $result->fetch_assoc()) {
+                    $results[] = $row;
+                }
+
+                $passengers = [];
+                foreach ($results as $result) {
+                    $paxType = $result['paxType'];
+                    if ($paxType == 'Adult') {
+                        $paxType = "ADT";
+                    } elseif ($paxType == 'Child') {
+                        $paxType = "CHD";
+                    } else {
+                        $paxType = "INF";
+                    }
+
+                    $passengers[] = [
+                        "title" => $result['salutation'],
+                        "firstName" => $result['fname'],
+                        "lastName" => $result['lname'],
+                        "email" => $result['email'],
+                        "dob" => $result['dob'] . "T15:43:15.677Z",
+                        "genderType" => $result['gender'],
+                        "areaCode" => "",
+                        "ffNumber" => "",
+                        "paxType" => $paxType,
+                        "mobile" => (string)$result['mobile_no'],
+                        "passportNumber" => $result['passportNumber'],
+                        "passengerNationality" => $result['passengerNationality'],
+                        "passportDOI" => $result['passportDOI'] . "T15:43:15.677Z",
+                        "passportDOE" => $result['passportDOE'] . "T15:43:15.677Z",
+                        "passportIssuedCountry" => $result['passportIssuedCountry'],
+                        "seatPref" => $result['seatPref'],
+                        "mealPref" => "",
+                        "ktn" => "",
+                        "redressNo" => "",
+                    ];
+                }
+                // $additionalServices[] =[
+                //     "baggageRefNo" => $bagageData['freeTextValue'],
+                //     "MealsRefNo"=>"",
+                //     "SegmentInfo"=>$bagageData['cityPairValue']
+                // ];
+                $url = 'https://sandboxapi.getfares.com/Flights/Booking/CreatePNR/v1';
+                $data = [
+                    "traceId" => $traceId,
+                    "gstDetails" => [
+                        "address1" => "",
+                        "address2" => "",
+                        "city" => "",
+                        "state" => "",
+                        "pinCode" => "",
+                        "email" => "",
+                        "gstNumber" => "",
+                        "gstPhoneNo" => "",
+                        "gstCompanyName" => ""
+                    ],
+                    "purchaseIds" => [
+                        $purchaseId
+                    ],
+                    "passengers" => $passengers,
+                    "address" => [
+                        "addressName" => $address, // Assuming all passengers have the same address
+                        "street" => $street,
+                        "state" => $state,
+                        "postalCode" => $zipcode,
+                        "countryName" => $country,
+                        "countryCode" => $country_code,
+                        "city" => $city
+                    ]
+                ];
+
+                // Convert data array to JSON format
+                $jsonData = json_encode($data);
+
+                var_dump($jsonData);
+                // Initialize cURL session
+                $ch = curl_init();
+
+                // var_dump($jsonData);
+
+                // Set the URL and other options for the cURL session
+                curl_setopt($ch, CURLOPT_URL, $url);
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'Content-Type: application/json',
+                    "Authorization: Bearer $token"
+                ]);
+
+                // Execute the cURL session and fetch the response
+                // $response = curl_exec($ch);
+
+                // Check for errors
+                if ($response === false) {
+                    echo 'cURL Error: ' . curl_error($ch);
+                } else {
+                    // Decode and print the response
+                    // var_dump($data);
+                    $responseData = json_decode($response, true);
+                    var_dump($responseData);
+                    if (!empty($responseData['orderId'])) {
+                        $bookingMessage = "Booking successful!";
+                        // SQL query
+                        $update = "UPDATE `wpk4_backend_travel_booking_pax` 
+                    SET `booking_status`='CONFIRMED' 
+                    WHERE `traceId` = ?";
+
+                        // Prepare statement
+                        $stmt = $mysqli->prepare($update);
+
+                        // Bind parameters
+                        $stmt->bind_param('s', $traceId); // 's' denotes that traceId is a string
+                        if ($stmt->execute()) {
+                            // echo "updated";
+                        } else {
+                            echo "Error: " . $stmt->error;
+                        }
+
+                        // Close the statement
+                        $stmt->close();
+                    }
+                }
+
+                // Close the cURL session
+                curl_close($ch);
+            } else {
+                // Display errors
+                foreach ($errors as $field => $error) {
+                    echo "<p>$error</p>";
                 }
             }
 
-            // Close the cURL session
-            curl_close($ch);
-        } else {
-            // Display errors
-            foreach ($errors as $field => $error) {
-                echo "<p>$error</p>";
+            // Close the connection
+            $mysqli->close();
+        }
+        // var_dump($formData);
+        $passengerTypes = array_merge(
+            array_fill(0, $formData['adultsCount'], 'Adult'),
+            array_fill(0, $formData['childrenCount'], 'Child'),
+            array_fill(0, $formData['infantsCount'], 'Infant')
+        );
+        $passengers_count = $formData['total'];
+        foreach($responseData['response']['flights'] as $flight){
+            foreach($flight['fareGroups'] as $faregroup){
+                foreach($faregroup['fares'] as $fares){
+                    $baseFair = $fares['base'];
+                }
             }
         }
+        $base_price = $baseFair;
 
-        // Close the connection
-        $mysqli->close();
-    }
-    // var_dump($formData);
-    $passengerTypes = array_merge(
-        array_fill(0, $formData['adultsCount'], 'Adult'),
-        array_fill(0, $formData['childrenCount'], 'Child'),
-        array_fill(0, $formData['infantsCount'], 'Infant')
-    );
-    $passengers_count = $formData['total'];
-    foreach($responseData['response']['flights'] as $flight){
-        foreach($flight['fareGroups'] as $faregroup){
-            foreach($faregroup['fares'] as $fares){
-                $baseFair = $fares['base'];
-            }
-        }
-    }
-    $total = "$ " .  $baseFair;
-    // DB connection 
+        $total = "$ " .  $baseFair;
+
+        // DB connection 
     ?>
 
     <div id="spinner" style="display: none;">
@@ -1325,30 +1338,41 @@ $responseData = $_SESSION['responseData'];
                         <div id="outer-div">
                             <div class="form-container">
                                 <div class="form-group col-6">
-                                    <label for="emergency_country-<?php echo $i; ?>">Extra bagage*</label>
-                                    <?php $index=0;?>
-                                    <?php foreach ($responseData['response']['flights'] as $flight) : ?>
-                                        <?php foreach ($flight['additionalServices'] as $additionalServices) : ?>
-                                            <div class="d-flex justify-content-between">
-                                                <div class="d-flex align-items-center gap-3">
-                                                    <input type="radio" name="bagage" id="bagage_<?php echo $index;?>">
-                                                    <label class="m-0" for="bagage_<?php echo $index;?>"><?php echo $additionalServices['additionalServiceType'] .  "-" . $additionalServices['serviceDescription'] ?></label>
-                                                    <input type="text" id="freeText_<?php echo $index;?>" value="<?php echo $additionalServices['freeText'];?>" hidden>
-                                                    <input type="text" id="cityPair_<?php echo $index;?>" value="<?php echo $additionalServices['cityPair'];?>" hidden>
-                                                </div>
-                                                <div>
-                                                    <?php foreach ($additionalServices['flightFares'] as $flightFares) : ?>
-                                                        <p><?php echo "$ " . $flightFares['amount'] ?></p>
-                                                    <?php endforeach; ?>
-                                                </div>
-                                            </div>
-                                            <?php $index++;?>
+                                    <label for="emergency_country-<?php echo $i; ?>">Extra baggage*</label>
+                                    <?php $index = 0; ?>
+                                    <?php foreach($responseData['response']['flights'] as $flight): ?>
+                                        <?php foreach($flight['segGroups'] as $segGroups): ?>
+                                            <?php foreach($segGroups['segs'] as $segs): ?>
+                                                <p class="my-2"><b><?php echo $segs['origin'] . " " . "x" . " " . $segs['destination']; ?></b></p>
+                                                <?php foreach ($flight['additionalServices'] as $additionalServices) : ?>
+                                                    <?php if($additionalServices): ?>
+                                                    <?php if (isset($additionalServices['cityPair']) == isset($segs['origin']) . isset($segs['destination'])) : ?>
+                                                        <div class="d-flex justify-content-between">
+                                                            <div class="d-flex align-items-center gap-3">
+                                                                <input type="radio" name="baggage" id="baggage_<?php echo $index; ?>">
+                                                                <label class="m-0" for="baggage_<?php echo $index; ?>"><?php echo $additionalServices['additionalServiceType'] . "-" . $additionalServices['serviceDescription']; ?></label>
+                                                                <input type="text" id="freeText_<?php echo $index; ?>" value="<?php echo $additionalServices['freeText']; ?>" hidden>
+                                                                <input type="text" id="cityPair_<?php echo $index; ?>" value="<?php echo $additionalServices['cityPair']; ?>" hidden>
+                                                            </div>
+                                                            <div>
+                                                                <?php foreach ($additionalServices['flightFares'] as $flightFares) : ?>
+                                                                    <p><?php echo "$ " . $flightFares['amount']; ?></p>
+                                                                    <input type="text" id="price_<?php echo $index;?>" value="<?php echo $flightFares['amount'];?>" hidden>
+                                                                <?php endforeach; ?>
+                                                            </div>
+                                                        </div>
+                                                        <?php $index++; ?>
+                                                    <?php endif; ?>
+                                                    <?php endif; ?>
+                                                <?php endforeach; ?>
+                                            <?php endforeach; ?>
                                         <?php endforeach; ?>
                                     <?php endforeach; ?>
+                                    
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
                     <div>
                         <h2 class="text-start ">Invoice Address</h2>
                         <div id="main">
@@ -1827,7 +1851,7 @@ $responseData = $_SESSION['responseData'];
 
                                 </div>
                                 <!-- <div class="d-flex justify-content-end">
-                                    <button id="submit_btn" style="    background: #ffbb00;width: 20%;font-size: larger;color: #000;font-weight: 700;" class="btn btn-primary" type="submit">Submit -></button>
+                                    <button id="submit_btn" style="background: #ffbb00;width: 20%;font-size: larger;color: #000;font-weight: 700;" class="btn btn-primary" type="submit">Submit -></button>
                                 </div> -->
                             </div>
                         </div>
@@ -1835,9 +1859,10 @@ $responseData = $_SESSION['responseData'];
                     </div>
 
                 </div>
-                <div style="background-color: #a9a9a991;padding: 40px 0;" class="d-flex justify-content-around align-items-center">
-                    <p class="m-0"><span style="font-weight: bolder;font-size: x-large;">Total : <?php echo $total; ?></span></p>
-                    <button id="submit_btn" style="    background: #ffbb00;width: 20%;font-size: larger;color: #000;font-weight: 700;" class="btn btn-primary" type="submit">Submit -></button>
+                <div style="background-color: #a9a9a991;padding: 40px 0; position:fixed; bottom:0;width:100%;" class="d-flex justify-content-around align-items-center">
+                    <p class="m-0"><span style="font-weight: bolder;font-size: x-large;" id="total_flight_price">Total : <?php echo $total; ?></span></p>
+                    <input type="text" name="" id="flight_price" value="<?php echo $base_price;?>" hidden> 
+                    <button id="submit_btn" style="background: #ffbb00;width: 20%;font-size: larger;color: #000;font-weight: 700;" class="btn btn-primary" type="submit">Submit -></button>
                 </div>
             </form>
         </div>
@@ -1856,6 +1881,63 @@ $responseData = $_SESSION['responseData'];
     <?php endif; ?>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const baggageRadios = document.querySelectorAll('input[name="baggage"]');
+
+            // Add event listener to each radio button
+            baggageRadios.forEach(function (radio) {
+                radio.addEventListener('change', function (event) {
+                    // Get the id of the selected radio button
+                    const selectedId = event.target.id;
+
+                    // Extract the index from the id (e.g., "baggage_1" -> 1)
+                    const index = selectedId.split('_')[1];
+
+                    // Construct the input ids using the index
+                    const priceInputId = 'price_' + index;
+                    const freeTextInputId = 'freeText_' + index;
+                    const cityPairInputId = 'cityPair_' + index;
+                    let flight_price = document.getElementById('flight_price').value;
+
+                    // Get the values of the inputs
+                    const priceValue = document.getElementById(priceInputId).value;
+                    const freeTextValue = document.getElementById(freeTextInputId).value;
+                    const cityPairValue = document.getElementById(cityPairInputId).value;
+                    const final_price = parseFloat(priceValue) + parseFloat(flight_price);
+                    document.getElementById("total_flight_price").innerHTML = "Total : " + "$ " + final_price.toFixed(2);
+
+                    // Print the values to the console (for debugging purposes)
+                    console.log('Selected price:', priceValue);
+                    console.log('Selected freeText:', freeTextValue);  // Log freeTextValue here
+                    console.log('Selected cityPair:', cityPairValue);
+                    console.log(flight_price);
+                    console.log(final_price);
+
+                    var baggageData = {
+                        final_price: final_price,
+                        freeTextValue: freeTextValue,
+                        cityPairValue: cityPairValue
+                    };
+
+                    sessionStorage.setItem('baggageData', JSON.stringify(baggageData));
+                    console.log("Selected Data Array:", baggageData);
+
+                    // Send data to PHP session using AJAX
+                    fetch('managebagage.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ baggage: JSON.stringify(baggageData) })
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                        console.log(data);
+                        // Reload the page after data is stored in session
+                        window.location.reload();
+                    })
+                    .catch(error => console.error('Error:', error));
+                });
+            });
             // Populate year dropdowns
             function populateYearDropdowns() {
                 const currentYear = new Date().getFullYear();
