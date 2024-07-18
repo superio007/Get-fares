@@ -5,7 +5,7 @@ $formData = $_SESSION['formData'];
 $responseData = $_SESSION['responseData'];
 // print_r($responseData);
 $bagageData = $_SESSION['baggage'];
-var_dump($bagageData);
+// var_dump($bagageData);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -285,10 +285,24 @@ var_dump($bagageData);
 
         $traceId = $_GET['traceId'];
         $purchaseId = $_GET['purchaseId'];
-
+        function searchAdditionalServices($jsonResponse) {
+            // Decode the JSON response
+            // $responseArray = json_decode($jsonResponse, true);
+        
+            // Convert the array to a JSON string
+            $jsonString = json_encode($jsonResponse);
+        
+            // Search for the word "additionalServices" in the JSON string
+            if (strpos($jsonString, 'additionalServices') !== false) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        $additionalServicesCheck = searchAdditionalServices($responseData);
+        
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $errors = [];
-
             // Validation functions
             function validate_required($field, $value)
             {
@@ -548,7 +562,7 @@ var_dump($bagageData);
                 ]);
 
                 // Execute the cURL session and fetch the response
-                // $response = curl_exec($ch);
+                $response = curl_exec($ch);
 
                 // Check for errors
                 if ($response === false) {
@@ -1336,43 +1350,44 @@ var_dump($bagageData);
                     <h2 class="text-start ">Add ons</h2>
                     <div id="main" class="mb-3">
                         <div id="outer-div">
-                            <div class="form-container">
-                                <div class="form-group col-6">
-                                    <label for="emergency_country-<?php echo $i; ?>">Extra baggage*</label>
-                                    <?php $index = 0; ?>
-                                    <?php foreach($responseData['response']['flights'] as $flight): ?>
-                                        <?php foreach($flight['segGroups'] as $segGroups): ?>
-                                            <?php foreach($segGroups['segs'] as $segs): ?>
-                                                <p class="my-2"><b><?php echo $segs['origin'] . " " . "x" . " " . $segs['destination']; ?></b></p>
-                                                <?php foreach ($flight['additionalServices'] as $additionalServices) : ?>
-                                                    <?php if($additionalServices): ?>
-                                                    <?php if (isset($additionalServices['cityPair']) == isset($segs['origin']) . isset($segs['destination'])) : ?>
-                                                        <div class="d-flex justify-content-between">
-                                                            <div class="d-flex align-items-center gap-3">
-                                                                <input type="radio" name="baggage" id="baggage_<?php echo $index; ?>">
-                                                                <label class="m-0" for="baggage_<?php echo $index; ?>"><?php echo $additionalServices['additionalServiceType'] . "-" . $additionalServices['serviceDescription']; ?></label>
-                                                                <input type="text" id="freeText_<?php echo $index; ?>" value="<?php echo $additionalServices['freeText']; ?>" hidden>
-                                                                <input type="text" id="cityPair_<?php echo $index; ?>" value="<?php echo $additionalServices['cityPair']; ?>" hidden>
+                            <div class="form-container ">
+                                <?php if($additionalServicesCheck):?>
+                                    <div class="form-group col-6 ">
+                                        <label for="emergency_country-<?php echo $i; ?>">Extra baggage*</label>
+                                        <?php $index = 0; ?>
+                                        <?php foreach($responseData['response']['flights'] as $flight): ?>
+                                            <?php foreach($flight['segGroups'] as $segGroups): ?>
+                                                <?php foreach($segGroups['segs'] as $segs): ?>
+                                                    <p class="my-2"><b><?php echo $segs['origin'] . " " . "x" . " " . $segs['destination']; ?></b></p>
+                                                    <?php foreach ($flight['additionalServices'] as $additionalServices) : ?>
+                                                        <?php if($additionalServices): ?>
+                                                        <?php if (isset($additionalServices['cityPair']) == isset($segs['origin']) . isset($segs['destination'])) : ?>
+                                                            <div class="d-flex justify-content-between">
+                                                                <div class="d-flex align-items-center gap-3">
+                                                                    <input type="radio" name="baggage" id="baggage_<?php echo $index; ?>">
+                                                                    <label class="m-0" for="baggage_<?php echo $index; ?>"><?php echo $additionalServices['additionalServiceType'] . "-" . $additionalServices['serviceDescription']; ?></label>
+                                                                    <input type="text" id="freeText_<?php echo $index; ?>" value="<?php echo $additionalServices['freeText']; ?>" hidden>
+                                                                    <input type="text" id="cityPair_<?php echo $index; ?>" value="<?php echo $additionalServices['cityPair']; ?>" hidden>
+                                                                </div>
+                                                                <div>
+                                                                    <?php foreach ($additionalServices['flightFares'] as $flightFares) : ?>
+                                                                        <p><?php echo "$ " . $flightFares['amount']; ?></p>
+                                                                        <input type="text" id="price_<?php echo $index;?>" value="<?php echo $flightFares['amount'];?>" hidden>
+                                                                    <?php endforeach; ?>
+                                                                </div>
                                                             </div>
-                                                            <div>
-                                                                <?php foreach ($additionalServices['flightFares'] as $flightFares) : ?>
-                                                                    <p><?php echo "$ " . $flightFares['amount']; ?></p>
-                                                                    <input type="text" id="price_<?php echo $index;?>" value="<?php echo $flightFares['amount'];?>" hidden>
-                                                                <?php endforeach; ?>
-                                                            </div>
-                                                        </div>
-                                                        <?php $index++; ?>
-                                                    <?php endif; ?>
-                                                    <?php endif; ?>
+                                                            <?php $index++; ?>
+                                                        <?php endif; ?>
+                                                        <?php endif; ?>
+                                                    <?php endforeach; ?>
                                                 <?php endforeach; ?>
                                             <?php endforeach; ?>
                                         <?php endforeach; ?>
-                                    <?php endforeach; ?>
-                                    
                                     </div>
-                                </div>
+                                <?php endif;?>
                             </div>
                         </div>
+                    </div>
                     <div>
                         <h2 class="text-start ">Invoice Address</h2>
                         <div id="main">
@@ -1859,7 +1874,7 @@ var_dump($bagageData);
                     </div>
 
                 </div>
-                <div style="background-color: #a9a9a991;padding: 40px 0; position:fixed; bottom:0;width:100%;" class="d-flex justify-content-around align-items-center">
+                <div style="background-color: #a9a9a991;padding: 40px 0; position:sticky; bottom:0;width:100%;" class="d-flex justify-content-around align-items-center">
                     <p class="m-0"><span style="font-weight: bolder;font-size: x-large;" id="total_flight_price">Total : <?php echo $total; ?></span></p>
                     <input type="text" name="" id="flight_price" value="<?php echo $base_price;?>" hidden> 
                     <button id="submit_btn" style="background: #ffbb00;width: 20%;font-size: larger;color: #000;font-weight: 700;" class="btn btn-primary" type="submit">Submit -></button>
