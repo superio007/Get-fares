@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if (isset($data['baggage'])) {
         $_SESSION['baggage'] = json_decode($data['baggage'], true);
-        echo "Session data stored successfully.";
+        echo "Session data  stored successfully.";
     } else {
         echo "No data provided.";
     }

@@ -508,11 +508,23 @@ $bagageData = $_SESSION['baggage'];
                         "redressNo" => "",
                     ];
                 }
-                // $additionalServices[] =[
-                //     "baggageRefNo" => $bagageData['freeTextValue'],
-                //     "MealsRefNo"=>"",
-                //     "SegmentInfo"=>$bagageData['cityPairValue']
-                // ];
+
+                // Fetch baggage data from the session
+                session_start();
+                $bagageData = $_SESSION['baggageData'] ?? [];
+
+                $additionalServices = [];
+                if (!empty($bagageData)) {
+                    foreach ($bagageData as $data) {
+                        $additionalServices[] = [
+                            "baggageRefNo" => $data['freeTextValue'],
+                            "MealsRefNo" => "",
+                            "SegmentInfo" => $data['cityPairValue']
+                        ];
+                    }
+                }
+
+                // Prepare the API request data
                 $url = 'https://sandboxapi.getfares.com/Flights/Booking/CreatePNR/v1';
                 $data = [
                     "traceId" => $traceId,
@@ -527,29 +539,27 @@ $bagageData = $_SESSION['baggage'];
                         "gstPhoneNo" => "",
                         "gstCompanyName" => ""
                     ],
-                    "purchaseIds" => [
-                        $purchaseId
-                    ],
+                    "purchaseIds" => [$purchaseId],
                     "passengers" => $passengers,
                     "address" => [
-                        "addressName" => $address, // Assuming all passengers have the same address
+                        "addressName" => $address,
                         "street" => $street,
                         "state" => $state,
                         "postalCode" => $zipcode,
                         "countryName" => $country,
                         "countryCode" => $country_code,
                         "city" => $city
-                    ]
+                    ],
+                    "additionalServices" => $additionalServices
                 ];
 
                 // Convert data array to JSON format
                 $jsonData = json_encode($data);
 
                 var_dump($jsonData);
+
                 // Initialize cURL session
                 $ch = curl_init();
-
-                // var_dump($jsonData);
 
                 // Set the URL and other options for the cURL session
                 curl_setopt($ch, CURLOPT_URL, $url);
@@ -569,15 +579,14 @@ $bagageData = $_SESSION['baggage'];
                     echo 'cURL Error: ' . curl_error($ch);
                 } else {
                     // Decode and print the response
-                    // var_dump($data);
                     $responseData = json_decode($response, true);
                     var_dump($responseData);
                     if (!empty($responseData['orderId'])) {
                         $bookingMessage = "Booking successful!";
                         // SQL query
                         $update = "UPDATE `wpk4_backend_travel_booking_pax` 
-                    SET `booking_status`='CONFIRMED' 
-                    WHERE `traceId` = ?";
+                                SET `booking_status`='CONFIRMED' 
+                                WHERE `traceId` = ?";
 
                         // Prepare statement
                         $stmt = $mysqli->prepare($update);
@@ -597,6 +606,7 @@ $bagageData = $_SESSION['baggage'];
 
                 // Close the cURL session
                 curl_close($ch);
+
             } else {
                 // Display errors
                 foreach ($errors as $field => $error) {
@@ -1350,41 +1360,47 @@ $bagageData = $_SESSION['baggage'];
                     <h2 class="text-start ">Add ons</h2>
                     <div id="main" class="mb-3">
                         <div id="outer-div">
-                            <div class="form-container ">
-                                <?php if($additionalServicesCheck):?>
-                                    <div class="form-group col-6 ">
+                            <div class="form-container">
+                                <?php if ($additionalServicesCheck): ?>
+                                    <div class="form-group col-6">
                                         <label for="emergency_country-<?php echo $i; ?>">Extra baggage*</label>
                                         <?php $index = 0; ?>
-                                        <?php foreach($responseData['response']['flights'] as $flight): ?>
-                                            <?php foreach($flight['segGroups'] as $segGroups): ?>
-                                                <?php foreach($segGroups['segs'] as $segs): ?>
+                                        <?php foreach ($responseData['response']['flights'] as $flight): ?>
+                                            <?php foreach ($flight['segGroups'] as $segGroups): ?>
+                                                <?php foreach ($segGroups['segs'] as $segs): ?>
                                                     <p class="my-2"><b><?php echo $segs['origin'] . " " . "x" . " " . $segs['destination']; ?></b></p>
-                                                    <?php foreach ($flight['additionalServices'] as $additionalServices) : ?>
-                                                        <?php if($additionalServices): ?>
-                                                        <?php if (isset($additionalServices['cityPair']) == isset($segs['origin']) . isset($segs['destination'])) : ?>
-                                                            <div class="d-flex justify-content-between">
-                                                                <div class="d-flex align-items-center gap-3">
-                                                                    <input type="radio" name="baggage" id="baggage_<?php echo $index; ?>">
-                                                                    <label class="m-0" for="baggage_<?php echo $index; ?>"><?php echo $additionalServices['additionalServiceType'] . "-" . $additionalServices['serviceDescription']; ?></label>
-                                                                    <input type="text" id="freeText_<?php echo $index; ?>" value="<?php echo $additionalServices['freeText']; ?>" hidden>
-                                                                    <input type="text" id="cityPair_<?php echo $index; ?>" value="<?php echo $additionalServices['cityPair']; ?>" hidden>
+                                                    <?php 
+                                                        $displayedServices = []; // Track displayed services to avoid duplicates
+                                                    ?>
+                                                    <?php foreach ($flight['additionalServices'] as $additionalServices): ?>
+                                                        <?php if ($additionalServices && !in_array($additionalServices['cityPair'] . $additionalServices['additionalServiceType'] . $additionalServices['serviceDescription'], $displayedServices)): ?>
+                                                            <?php if ($additionalServices['cityPair'] == $segs['origin'] . $segs['destination']): ?>
+                                                                <div class="d-flex justify-content-between">
+                                                                    <div class="d-flex align-items-center gap-3">
+                                                                        <input type="checkbox" name="baggage" id="baggage_<?php echo $index; ?>" data-city-pair="<?php echo $additionalServices['cityPair']; ?>" data-service-type="<?php echo $additionalServices['additionalServiceType']; ?>" data-service-description="<?php echo $additionalServices['serviceDescription']; ?>">
+                                                                        <label class="m-0" for="baggage_<?php echo $index; ?>"><?php echo $additionalServices['additionalServiceType'] . "-" . $additionalServices['serviceDescription']; ?></label>
+                                                                        <input type="text" id="freeText_<?php echo $index; ?>" value="<?php echo $additionalServices['freeText']; ?>" hidden>
+                                                                        <input type="text" id="cityPair_<?php echo $index; ?>" value="<?php echo $additionalServices['cityPair']; ?>" hidden>
+                                                                    </div>
+                                                                    <div>
+                                                                        <?php foreach ($additionalServices['flightFares'] as $flightFares): ?>
+                                                                            <p><?php echo "$ " . $flightFares['amount']; ?></p>
+                                                                            <input type="text" id="price_<?php echo $index; ?>" value="<?php echo $flightFares['amount']; ?>" hidden>
+                                                                        <?php endforeach; ?>
+                                                                    </div>
                                                                 </div>
-                                                                <div>
-                                                                    <?php foreach ($additionalServices['flightFares'] as $flightFares) : ?>
-                                                                        <p><?php echo "$ " . $flightFares['amount']; ?></p>
-                                                                        <input type="text" id="price_<?php echo $index;?>" value="<?php echo $flightFares['amount'];?>" hidden>
-                                                                    <?php endforeach; ?>
-                                                                </div>
-                                                            </div>
-                                                            <?php $index++; ?>
-                                                        <?php endif; ?>
+                                                                <?php 
+                                                                    $displayedServices[] = $additionalServices['cityPair'] . $additionalServices['additionalServiceType'] . $additionalServices['serviceDescription'];
+                                                                    $index++; 
+                                                                ?>
+                                                            <?php endif; ?>
                                                         <?php endif; ?>
                                                     <?php endforeach; ?>
                                                 <?php endforeach; ?>
                                             <?php endforeach; ?>
                                         <?php endforeach; ?>
                                     </div>
-                                <?php endif;?>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -1875,7 +1891,7 @@ $bagageData = $_SESSION['baggage'];
 
                 </div>
                 <div style="background-color: #a9a9a991;padding: 40px 0; position:sticky; bottom:0;width:100%;" class="d-flex justify-content-around align-items-center">
-                    <p class="m-0"><span style="font-weight: bolder;font-size: x-large;" id="total_flight_price">Total : <?php echo $total; ?></span></p>
+                    <p class="m-0"><span style="font-weight: bolder;font-size: x-large;" id="total_flight_price">Total : <span id="update_total"><?php echo $total; ?></span></span></p>
                     <input type="text" name="" id="flight_price" value="<?php echo $base_price;?>" hidden> 
                     <button id="submit_btn" style="background: #ffbb00;width: 20%;font-size: larger;color: #000;font-weight: 700;" class="btn btn-primary" type="submit">Submit -></button>
                 </div>
@@ -1894,7 +1910,7 @@ $bagageData = $_SESSION['baggage'];
             ?>
         </div>
     <?php endif; ?>
-    <script>
+    <!-- <script>
         document.addEventListener('DOMContentLoaded', function() {
             const baggageRadios = document.querySelectorAll('input[name="baggage"]');
 
@@ -1903,6 +1919,9 @@ $bagageData = $_SESSION['baggage'];
                 radio.addEventListener('change', function (event) {
                     // Get the id of the selected radio button
                     const selectedId = event.target.id;
+
+                    // Save the selected radio button id to sessionStorage
+                    sessionStorage.setItem('selectedBaggageRadio', selectedId);
 
                     // Extract the index from the id (e.g., "baggage_1" -> 1)
                     const index = selectedId.split('_')[1];
@@ -1936,7 +1955,7 @@ $bagageData = $_SESSION['baggage'];
                     sessionStorage.setItem('baggageData', JSON.stringify(baggageData));
                     console.log("Selected Data Array:", baggageData);
 
-                    // Send data to PHP session using AJAX
+                    // Send data to PHP session using AJAX without reloading the page
                     fetch('managebagage.php', {
                         method: 'POST',
                         headers: {
@@ -1947,12 +1966,23 @@ $bagageData = $_SESSION['baggage'];
                     .then(response => response.text())
                     .then(data => {
                         console.log(data);
-                        // Reload the page after data is stored in session
-                        window.location.reload();
+                        // Optionally, you can update the UI or provide feedback to the user here
                     })
                     .catch(error => console.error('Error:', error));
                 });
             });
+
+            // Check the previously selected radio button
+            const selectedBaggageRadio = sessionStorage.getItem('selectedBaggageRadio');
+            if (selectedBaggageRadio) {
+                const radioToCheck = document.getElementById(selectedBaggageRadio);
+                if (radioToCheck) {
+                    radioToCheck.checked = true;
+                    // Manually trigger the change event to update the total price
+                    radioToCheck.dispatchEvent(new Event('change'));
+                }
+            }
+
             // Populate year dropdowns
             function populateYearDropdowns() {
                 const currentYear = new Date().getFullYear();
@@ -2091,13 +2121,489 @@ $bagageData = $_SESSION['baggage'];
                 }
             });
         });
+
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('passenger-form');
             form.addEventListener('submit', function() {
                 document.getElementById('spinner').style.display = 'flex';
             });
         });
-    </script>
-</body>
+    </script> -->
+    <!-- <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const baggageRadios = document.querySelectorAll('input[name="baggage"]');
 
+            // Function to update baggage selection
+            function updateBaggageSelection(selectedId) {
+                const radio = document.getElementById(selectedId);
+                const index = selectedId.split('_')[1];
+                const freeTextValue = document.getElementById('freeText_' + index).value;
+                const cityPairValue = document.getElementById('cityPair_' + index).value;
+                const priceValue = document.getElementById('price_' + index).value;
+                let flight_price = document.getElementById('flight_price').value;
+                const final_price = parseFloat(priceValue) + parseFloat(flight_price);
+
+                const baggageData = {
+                    final_price: priceValue,
+                    freeTextValue: freeTextValue,
+                    cityPairValue: cityPairValue
+                };
+
+                // Store the selected baggage data
+                let baggageDataArray = JSON.parse(sessionStorage.getItem('baggageData')) || {};
+                baggageDataArray[cityPairValue] = baggageData;
+                sessionStorage.setItem('baggageData', JSON.stringify(baggageDataArray));
+
+                // Log the selected data for debugging
+                console.log("Selected Data Array:", baggageDataArray);
+
+                // Send data to PHP session using AJAX without reloading the page
+                fetch('managebagage.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ baggage: JSON.stringify(baggageDataArray) })
+                })
+                .then(response => response.text())
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => console.error('Error:', error));
+            }
+
+            // Add event listener to each radio button
+            baggageRadios.forEach(function(radio) {
+                radio.addEventListener('change', function(event) {
+                    const selectedId = event.target.id;
+
+                    // Get the selected freeText value
+                    const index = selectedId.split('_')[1];
+                    const selectedFreeText = document.getElementById('freeText_' + index).value;
+
+                    // Find and check all radios with the same freeText value
+                    baggageRadios.forEach(function(radio) {
+                        const radioIndex = radio.id.split('_')[1];
+                        const freeTextValue = document.getElementById('freeText_' + radioIndex).value;
+                        if (freeTextValue === selectedFreeText) {
+                            radio.checked = true;
+                            updateBaggageSelection(radio.id);
+                        }
+                    });
+
+                    // Save the selected radio button id to sessionStorage
+                    let selectedBaggageRadios = JSON.parse(sessionStorage.getItem('selectedBaggageRadios')) || {};
+                    selectedBaggageRadios[selectedFreeText] = selectedId;
+                    sessionStorage.setItem('selectedBaggageRadios', JSON.stringify(selectedBaggageRadios));
+                });
+            });
+
+            // Check the previously selected radio buttons
+            const selectedBaggageRadios = JSON.parse(sessionStorage.getItem('selectedBaggageRadios')) || {};
+            Object.keys(selectedBaggageRadios).forEach(freeText => {
+                const selectedId = selectedBaggageRadios[freeText];
+                const radioToCheck = document.getElementById(selectedId);
+                if (radioToCheck) {
+                    radioToCheck.checked = true;
+                    // Manually trigger the change event to update the total price
+                    radioToCheck.dispatchEvent(new Event('change'));
+                }
+            });
+
+            // Populate year dropdowns
+            function populateYearDropdowns() {
+                const currentYear = new Date().getFullYear();
+
+                for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
+                    const dobYear = document.getElementById('dob-year-' + i);
+                    const idissueyear = document.getElementById('id-issue-year-' + i);
+                    const idExpireYear = document.getElementById('id-expire-year-' + i);
+
+                    for (let year = currentYear; year >= 1900; year--) {
+                        let option = new Option(year, year);
+                        dobYear.add(option);
+                    }
+
+                    for (let year = currentYear; year >= 1900; year--) {
+                        let option = new Option(year, year);
+                        idissueyear.add(option);
+                    }
+
+                    for (let year = currentYear; year <= currentYear + 50; year++) {
+                        let option = new Option(year, year);
+                        idExpireYear.add(option);
+                    }
+                }
+            }
+
+            populateYearDropdowns();
+
+            // Validate fields on input
+            const requiredFields = [
+                'title', 'first-name', 'last-name',
+                'dob-day', 'dob-month', 'dob-year',
+                'id-method', 'id-number',
+                'id-expire-day', 'id-expire-month', 'id-expire-year',
+                'country-issue', 'country-birth', 'phone-number', 'city',
+                'zip-code', 'street'
+            ];
+
+            for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
+                requiredFields.forEach(function(field) {
+                    const input = document.getElementById(field + '-' + i);
+                    if (input) {
+                        input.addEventListener('input', function() {
+                            validateField(input);
+                        });
+                    }
+                });
+            }
+
+            function validateField(input) {
+                const errorElement = document.getElementById(input.id + '-error');
+                if (input.value === '' || input.value === null) {
+                    showError(input, errorElement, 'This field is required.');
+                } else if ((input.id.includes('first-name') || input.id.includes('last-name') || input.id.includes('city') || input.id.includes('street')) && /\d/.test(input.value)) {
+                    showError(input, errorElement, 'This field should not contain numbers.');
+                } else if ((input.id.includes('id-number') || input.id.includes('zip-code') || input.id.includes('phone-number') || input.id.includes('emergency_phone-number')) && /\D/.test(input.value)) {
+                    showError(input, errorElement, 'This field should only contain numbers.');
+                } else {
+                    hideError(input, errorElement);
+                }
+            }
+
+            function showError(input, errorElement, message) {
+                input.style.border = 'red 2px solid';
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+
+            function hideError(input, errorElement) {
+                input.style.border = '';
+                errorElement.style.display = 'none';
+            }
+
+            function toggleRequiredAttributes(index, shouldShare) {
+                const emergencyFields = [
+                    'emergency_country', 'emergency_phone-number', 'emergency_email-address'
+                ];
+
+                emergencyFields.forEach(function(field) {
+                    const input = document.getElementById(field + '-' + index);
+                    if (input) {
+                        if (shouldShare) {
+                            input.setAttribute('required', 'required');
+                        } else {
+                            input.removeAttribute('required');
+                        }
+                    }
+                });
+            }
+
+            // Validate form on submit
+            document.getElementById('passenger-form').addEventListener('submit', function(event) {
+                let valid = true;
+
+                for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
+                    requiredFields.forEach(function(field) {
+                        const input = document.getElementById(field + '-' + i);
+                        const errorElement = document.getElementById(field + '-' + i + '-error');
+
+                        if (input && (input.value === '' || input.value === null)) {
+                            showError(input, errorElement, 'This field is required.');
+                            valid = false;
+                        } else if (input && (input.id.includes('first-name') || input.id.includes('last-name') || input.id.includes('city') || input.id.includes('street')) && /\d/.test(input.value)) {
+                            showError(input, errorElement, 'This field should not contain numbers.');
+                            valid = false;
+                        } else if (input && (input.id.includes('id-number') || input.id.includes('zip-code') || input.id.includes('phone-number') || input.id.includes('emergency_phone-number')) && /\D/.test(input.value)) {
+                            showError(input, errorElement, 'This field should only contain numbers.');
+                            valid = false;
+                        } else if (input) {
+                            hideError(input, errorElement);
+                        }
+                    });
+                }
+
+                if (!valid) {
+                    event.preventDefault(); // Prevent form submission if not valid
+                }
+            });
+
+            function toggleDropdown(index) {
+                const shouldShare = $('#share-' + index).is(':checked');
+                if (shouldShare) {
+                    $('#contact-details-' + index).removeClass('hidden');
+                } else {
+                    $('#contact-details-' + index).addClass('hidden');
+                }
+                toggleRequiredAttributes(index, shouldShare);
+            }
+
+            $(document).ready(function() {
+                for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
+                    toggleDropdown(i);
+                    $('input[name="emergency_contact_' + i + '"]').on('change', function() {
+                        toggleDropdown(i);
+                    });
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('passenger-form');
+            form.addEventListener('submit', function() {
+                document.getElementById('spinner').style.display = 'flex';
+            });
+        });
+    </script> -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const baggageRadios = document.querySelectorAll('input[name="baggage"]');
+        
+        // Function to update the total flight price
+        function updateTotalFlightPrice() {
+            let flight_price = parseFloat(document.getElementById('flight_price').value);
+            let baggageDataArray = JSON.parse(sessionStorage.getItem('baggageData')) || {};
+            let baggageTotal = 0;
+
+            Object.values(baggageDataArray).forEach(data => {
+                baggageTotal += parseFloat(data.final_price);
+            });
+
+            const total = flight_price + baggageTotal;
+            document.getElementById("total_flight_price").innerHTML = "Total : " + "$ " + total.toFixed(2);
+        }
+
+        // Function to update baggage selection
+        function updateBaggageSelection(selectedId) {
+            const radio = document.getElementById(selectedId);
+            const index = selectedId.split('_')[1];
+            const freeTextValue = document.getElementById('freeText_' + index).value;
+            const cityPairValue = document.getElementById('cityPair_' + index).value;
+            const priceValue = document.getElementById('price_' + index).value;
+
+            const baggageData = {
+                final_price: priceValue,
+                freeTextValue: freeTextValue,
+                cityPairValue: cityPairValue
+            };
+
+            // Store the selected baggage data
+            let baggageDataArray = JSON.parse(sessionStorage.getItem('baggageData')) || {};
+            baggageDataArray[cityPairValue] = baggageData;
+            sessionStorage.setItem('baggageData', JSON.stringify(baggageDataArray));
+
+            // Log the selected data for debugging
+            console.log("Selected Data Array:", baggageDataArray);
+
+            // Send data to PHP session using AJAX without reloading the page
+            fetch('managebagage.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ baggage: JSON.stringify(baggageDataArray) })
+            })
+            .then(response => response.text())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => console.error('Error:', error));
+
+            // Update the total flight price
+            updateTotalFlightPrice();
+        }
+
+        // Add event listener to each radio button
+        baggageRadios.forEach(function(radio) {
+            radio.addEventListener('change', function(event) {
+                const selectedId = event.target.id;
+
+                // Get the selected freeText value
+                const index = selectedId.split('_')[1];
+                const selectedFreeText = document.getElementById('freeText_' + index).value;
+
+                // Find and check all radios with the same freeText value
+                baggageRadios.forEach(function(radio) {
+                    const radioIndex = radio.id.split('_')[1];
+                    const freeTextValue = document.getElementById('freeText_' + radioIndex).value;
+                    if (freeTextValue === selectedFreeText) {
+                        radio.checked = true;
+                        updateBaggageSelection(radio.id);
+                    }
+                });
+
+                // Save the selected radio button id to sessionStorage
+                let selectedBaggageRadios = JSON.parse(sessionStorage.getItem('selectedBaggageRadios')) || {};
+                selectedBaggageRadios[selectedFreeText] = selectedId;
+                sessionStorage.setItem('selectedBaggageRadios', JSON.stringify(selectedBaggageRadios));
+            });
+        });
+
+        // Check the previously selected radio buttons
+        const selectedBaggageRadios = JSON.parse(sessionStorage.getItem('selectedBaggageRadios')) || {};
+        Object.keys(selectedBaggageRadios).forEach(freeText => {
+            const selectedId = selectedBaggageRadios[freeText];
+            const radioToCheck = document.getElementById(selectedId);
+            if (radioToCheck) {
+                radioToCheck.checked = true;
+                // Manually trigger the change event to update the total price
+                radioToCheck.dispatchEvent(new Event('change'));
+            }
+        });
+
+        // Populate year dropdowns
+        function populateYearDropdowns() {
+            const currentYear = new Date().getFullYear();
+
+            for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
+                const dobYear = document.getElementById('dob-year-' + i);
+                const idissueyear = document.getElementById('id-issue-year-' + i);
+                const idExpireYear = document.getElementById('id-expire-year-' + i);
+
+                for (let year = currentYear; year >= 1900; year--) {
+                    let option = new Option(year, year);
+                    dobYear.add(option);
+                }
+
+                for (let year = currentYear; year >= 1900; year--) {
+                    let option = new Option(year, year);
+                    idissueyear.add(option);
+                }
+
+                for (let year = currentYear; year <= currentYear + 50; year++) {
+                    let option = new Option(year, year);
+                    idExpireYear.add(option);
+                }
+            }
+        }
+
+        populateYearDropdowns();
+
+        // Validate fields on input
+        const requiredFields = [
+            'title', 'first-name', 'last-name',
+            'dob-day', 'dob-month', 'dob-year',
+            'id-method', 'id-number',
+            'id-expire-day', 'id-expire-month', 'id-expire-year',
+            'country-issue', 'country-birth', 'phone-number', 'city',
+            'zip-code', 'street'
+        ];
+
+        for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
+            requiredFields.forEach(function(field) {
+                const input = document.getElementById(field + '-' + i);
+                if (input) {
+                    input.addEventListener('input', function() {
+                        validateField(input);
+                    });
+                }
+            });
+        }
+
+        function validateField(input) {
+            const errorElement = document.getElementById(input.id + '-error');
+            if (input.value === '' || input.value === null) {
+                showError(input, errorElement, 'This field is required.');
+            } else if ((input.id.includes('first-name') || input.id.includes('last-name') || input.id.includes('city') || input.id.includes('street')) && /\d/.test(input.value)) {
+                showError(input, errorElement, 'This field should not contain numbers.');
+            } else if ((input.id.includes('id-number') || input.id.includes('zip-code') || input.id.includes('phone-number') || input.id.includes('emergency_phone-number')) && /\D/.test(input.value)) {
+                showError(input, errorElement, 'This field should only contain numbers.');
+            } else {
+                hideError(input, errorElement);
+            }
+        }
+
+        function showError(input, errorElement, message) {
+            input.style.border = 'red 2px solid';
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        function hideError(input, errorElement) {
+            input.style.border = '';
+            errorElement.style.display = 'none';
+        }
+
+        function toggleRequiredAttributes(index, shouldShare) {
+            const emergencyFields = [
+                'emergency_country', 'emergency_phone-number', 'emergency_email-address'
+            ];
+
+            emergencyFields.forEach(function(field) {
+                const input = document.getElementById(field + '-' + index);
+                if (input) {
+                    if (shouldShare) {
+                        input.setAttribute('required', 'required');
+                    } else {
+                        input.removeAttribute('required');
+                    }
+                }
+            });
+        }
+
+        // Validate form on submit
+        document.getElementById('passenger-form').addEventListener('submit', function(event) {
+            let valid = true;
+
+            for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
+                requiredFields.forEach(function(field) {
+                    const input = document.getElementById(field + '-' + i);
+                    const errorElement = document.getElementById(field + '-' + i + '-error');
+
+                    if (input && (input.value === '' || input.value === null)) {
+                        showError(input, errorElement, 'This field is required.');
+                        valid = false;
+                    } else if (input && (input.id.includes('first-name') || input.id.includes('last-name') || input.id.includes('city') || input.id.includes('street')) && /\d/.test(input.value)) {
+                        showError(input, errorElement, 'This field should not contain numbers.');
+                        valid = false;
+                    } else if (input && (input.id.includes('id-number') || input.id.includes('zip-code') || input.id.includes('phone-number') || input.id.includes('emergency_phone-number')) && /\D/.test(input.value)) {
+                        showError(input, errorElement, 'This field should only contain numbers.');
+                        valid = false;
+                    } else if (input) {
+                        hideError(input, errorElement);
+                    }
+                });
+            }
+
+            if (!valid) {
+                event.preventDefault(); // Prevent form submission if not valid
+            }
+        });
+
+        function toggleDropdown(index) {
+            const shouldShare = $('#share-' + index).is(':checked');
+            if (shouldShare) {
+                $('#contact-details-' + index).removeClass('hidden');
+            } else {
+                $('#contact-details-' + index).addClass('hidden');
+            }
+            toggleRequiredAttributes(index, shouldShare);
+        }
+
+        $(document).ready(function() {
+            for (let i = 0; i < <?php echo $passengers_count; ?>; i++) {
+                toggleDropdown(i);
+                $('input[name="emergency_contact_' + i + '"]').on('change', function() {
+                    toggleDropdown(i);
+                });
+            }
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('passenger-form');
+        form.addEventListener('submit', function() {
+            document.getElementById('spinner').style.display = 'flex';
+        });
+    });
+</script>
+
+<!-- Update Total Flight Price on Load -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        updateTotalFlightPrice();
+    });
+</script>
+</body>
 </html>
