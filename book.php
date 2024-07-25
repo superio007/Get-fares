@@ -4,7 +4,7 @@ $formData = $_SESSION['formData'];
 // var_dump($formData);
 $responseData = $_SESSION['responseData'];
 // print_r($responseData);
-$bagageData = $_SESSION['baggage'];
+$bagageData = isset($_SESSION['baggage']);
 // var_dump($bagageData);
 ?>
 <!DOCTYPE html>
@@ -624,16 +624,22 @@ $bagageData = $_SESSION['baggage'];
             array_fill(0, $formData['infantsCount'], 'Infant')
         );
         $passengers_count = $formData['total'];
+        // foreach($responseData['response']['flights'] as $flight){
+        //     foreach($flight['fareGroups'] as $faregroup){
+        //         foreach($faregroup['fares'] as $fares){
+        //             $baseFair = $fares['base'];
+        //         }
+        //     }
+        // }
         foreach($responseData['response']['flights'] as $flight){
-            foreach($flight['fareGroups'] as $faregroup){
-                foreach($faregroup['fares'] as $fares){
-                    $baseFair = $fares['base'];
-                }
-            }
+            $baseFare = $flight['fareGroups'][0]['fares'][0]['base'];
+            $childFare = isset($flight['fareGroups'][0]['fares'][1]['base']);   
         }
-        $base_price = $baseFair;
+        
+        $base_price = $baseFare;
 
-        $total = "$ " .  $baseFair;
+
+        $total = "$ " .  $baseFare + isset($childFare);
 
         // DB connection 
     ?>
