@@ -1,91 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emergency Contact Details Form</title>
-    <style>
-        .emergency-contact-form {
-            width: 500px;
-            border: 1px solid #ccc;
-            padding: 20px;
-            margin: 20px auto;
-            font-family: Arial, sans-serif;
-        }
-
-        .emergency-contact-form div {
-            margin-bottom: 10px;
-        }
-
-        .emergency-contact-form label {
-            font-weight: bold;
-        }
-
-        .emergency-contact-form input[type="radio"] {
-            margin-right: 10px;
-        }
-
-        .emergency-contact-form input[type="text"],
-        .emergency-contact-form select,
-        .emergency-contact-form input[type="email"] {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            box-sizing: border-box;
-        }
-
-        .form-header {
-            background-color: #f0f8ff;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-        }
-
-        .d-flex {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .gap-3 {
-            margin-right: 20px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flight Offer</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        padding: 20px;
+    }
+    .offer-container {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        padding: 20px;
+        max-width: 600px;
+        margin: 20px auto;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .price {
+        font-size: 24px;
+        color: green;
+    }
+    .details {
+        margin-top: 10px;
+    }
+    .flight-info {
+        margin: 10px 0;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-left: 5px solid #333;
+    }
+    .button {
+        background-color: #ff9900;
+        color: white;
+        padding: 10px 20px;
+        text-align: center;
+        display: inline-block;
+        border: none;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+</style>
 </head>
 <body>
-    <div class="emergency-contact-form">
-        <div class="form-header">
-            <p><strong>Sharing of emergency contact details.</strong></p>
-            <p>Please confirm and provide your contact details (mobile number and/or email) if you wish the carriers operating your flights to be able to contact you due to operational disruption such as cancellations, delays and schedule changes etc.</p>
+<div class="offer-container">
+    <div class="price">$42.00 - Adult price: 1x Adults - $42.00</div>
+    <div class="details">
+        <div class="flight-info">
+            <strong>Outbound Publish fare (ECONOMY BASIC)</strong>
+            <p><strong>Depart:</strong> 04:30 31.07.2024 BOM</p>
+            <p><strong>Arrive:</strong> 06:05 31.07.2024 AUH - 3h 5m</p>
+            <p><strong>Continue:</strong> 07:20 31.07.2024 AUH</p>
+            <p><strong>Final:</strong> 09:20 31.07.2024 XNB - 2h 0m</p>
+            <p>At least 7 seats available</p>
         </div>
-        <div class="d-flex">
-            <div class="d-flex gap-3">
-                <input type="radio" id="share" name="emergency_contact" value="share" checked>
-                <label for="share">I wish to share emergency contact details</label>
-            </div>
-            <div class="d-flex gap-3">
-                <input type="radio" id="no-share" name="emergency_contact" value="no-share">
-                <label for="no-share">I don't wish to share my details</label>
-            </div>
-        </div>
-        <div>
-            <label for="country-code">Country call code*</label>
-            <select id="country-code" name="country-code">
-                <option value="" disabled selected>--</option>
-                <option value="1">+1</option>
-                <option value="44">+44</option>
-                <option value="91">+91</option>
-                <!-- Add more country codes as needed -->
-            </select>
-        </div>
-        <div>
-            <label for="phone-number">Phone number*</label>
-            <input type="text" id="phone-number" name="phone-number">
-        </div>
-        <div>
-            <label for="email">E-mail address*</label>
-            <input type="email" id="email" name="email">
-        </div>
+        <button class="button">Book this offer</button>
     </div>
+</div>
 </body>
 </html>

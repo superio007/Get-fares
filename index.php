@@ -231,7 +231,7 @@ session_start();
 
         // Check for errors
         if ($response === false) {
-            echo 'cURL Error: ' . curl_error($ch);
+            echo 'cURL Error: ' . curl_error($ch); 
         } else {
             // Decode and print the response
             $responseData = json_decode($response, true);
@@ -415,17 +415,63 @@ session_start();
             <?php foreach ($responseData['flights'] as $index => $flight): ?>
                 <form action="" method="get" name="book" class="bookForm">
                     <div class="my-5">
-                        <div class="flight-result">
-                            <div class="d-flex justify-content-between">
-                                <div class="price">
-                                    <?php
-                                    $baseFare = $flight['fareGroups'][0]['fares'][0]['base'];
-                                    $childFare = isset($flight['fareGroups'][0]['fares'][1]['base']);
-                                    echo "$" . number_format($baseFare, 2) ;
-                                    ?>
-                                    <input type="text" name="traceId" id="traceId" value="<?php echo  $responseData['traceId']?>" hidden>
+                        <div class="flight-result" style="position: relative;">
+                            <div class="d-flex justify-content-between ">
+                                <div class="d-flex align-items-center" style="gap: 8px;">
+                                    <div class="price">
+                                        <?php
+                                        $baseFare = $flight['fareGroups'][0]['fares'][0]['base'];
+                                        $childFare = isset($flight['fareGroups'][0]['fares'][1]['base']);
+                                        echo "$" . number_format($baseFare, 2) ;
+                                        ?>
+                                        <input type="text" name="traceId" id="traceId" value="<?php echo  $responseData['traceId']?>" hidden>
+                                    </div>
+                                    <div>p.p.</div>
                                 </div>
-                                <div>Price p.p.</div>
+                                <div class="text-center" style="background-color:#000000; color:#ffab00; position: absolute;right: -11px;top: -15px;padding: 8px 2rem;border-radius:10px;">
+                                    <?php 
+                                    $totalAdultCheckInBag = 0;
+                                    $totalAdultCabinBag = 0;
+                                    $totalChildCheckInBag = 0;
+                                    $totalChildCabinBag = 0;
+
+                                    foreach($flight['fareGroups'] as $fareGroups) {
+                                        foreach($fareGroups['baggages'] as $baggage) {
+                                            $checkInBagWeight = (int)preg_replace('/[^0-9]/', '', explode(' ', $baggage['checkInBag'])[0]);
+                                            $cabinBagWeight = (int)preg_replace('/[^0-9]/', '', explode(' ', $baggage['cabinBag'])[0]);
+
+                                            if ($baggage['paxType'] == 'ADT') {
+                                                $totalAdultCheckInBag += $checkInBagWeight;
+                                                $totalAdultCabinBag += $cabinBagWeight;
+                                                continue;
+                                            } elseif ($baggage['paxType'] == 'CHD') {
+                                                $totalChildCheckInBag += $checkInBagWeight;
+                                                $totalChildCabinBag += $cabinBagWeight;
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    $adults = [
+                                        'totalCheckInBag' => $totalAdultCheckInBag,
+                                        'totalCabinBag' => $totalAdultCabinBag
+                                    ];
+
+                                    $children = [
+                                        'totalCheckInBag' => $totalChildCheckInBag,
+                                        'totalCabinBag' => $totalChildCabinBag
+                                    ];
+
+                                    $totalWeight = $adults['totalCheckInBag'] + $adults['totalCabinBag'] + $children['totalCheckInBag'] + $children['totalCabinBag'];
+                                    ?>
+
+                                    <p class="m-0">Baggage includes!</p>
+                                    <p class="m-0"><?php echo $totalWeight . 'Kg.'; ?></p>
+                                </div>
+                                <div style="position: absolute; ">
+                                    <p>Baggage includes!</p>
+                                    <p>Baggages!</p>
+                                </div>
                             </div>
                             <div class="flight-info mt-3">
                                 <span>
@@ -500,7 +546,7 @@ session_start();
                                                     echo "Child";
                                             }else{
                                                     echo "Infant";
-                                            }?> : <?php echo number_format($fare['base'], 2)?></p>
+                                            }?> : <?php echo number_format($baseFare, 2)?></p>
                                     <?php endforeach;?>
                                 </div>
                             </div>
