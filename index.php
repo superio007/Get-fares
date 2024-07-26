@@ -468,7 +468,7 @@ session_start();
                                     <p class="m-0">Baggage includes!</p>
                                     <p class="m-0"><?php echo $totalWeight . 'Kg.'; ?></p>
                                 </div>
-                                <div style="position: absolute; ">
+                                <div style="top: -22px;position: absolute;background-color: #818181;color: #ffffff;right: -176px;padding: 8px 14px;text-align: center;">
                                     <p>Baggage includes!</p>
                                     <p>Baggages!</p>
                                 </div>
